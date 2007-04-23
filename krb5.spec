@@ -130,6 +130,7 @@ Group:		System/Base
 Requires:	%{libname} = %{version}-%{release}
 Requires(pre):	/sbin/install-info
 Requires:	/sbin/install-info
+Provides:   kerberos-workstation
 Conflicts:	rsh <= 0.17-12mdk
 
 %description	workstation
