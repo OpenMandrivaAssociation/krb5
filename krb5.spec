@@ -1,6 +1,6 @@
 %define	name	krb5
-%define version 1.6
-%define rel		3
+%define version 1.6.1
+%define rel		1
 %define release %mkrel %rel
 
 %define	major	3
@@ -60,14 +60,6 @@ Patch19:	krb5-1.3.3-rcp-sendlarge.patch
 Patch23:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
 Patch24:	krb5-1.4.1-ftplfs.patch
-# http://krbdev.mit.edu/rt/Ticket/Display.html?id=5394
-Patch25:	krb5-1.6-fix-sendto_kdc-memset.dif
-# http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2007-001-telnetd.txt
-Patch26:	http://web.mit.edu/kerberos/advisories/2007-001-patch.txt
-# http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2007-002-syslog.txt
-Patch27:	http://web.mit.edu/kerberos/advisories/2007-002-patch.txt
-# http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2007-003.txt
-Patch28:	http://web.mit.edu/kerberos/advisories/2007-003-patch.txt
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -222,10 +214,6 @@ This version supports kerberos authentication.
 %patch19 -p1 -b .rcp-sendlarge
 %patch23 -p1 -b .et-preserve-file-names
 %patch24 -p1 -b .lfs
-%patch25 -p0 -b .cpw
-%patch26 -p0 -b .CVE-2007-0956
-%patch27 -p0 -b .CVE-2007-0957
-%patch28 -p0 -b .CVE-2007-1216
 
 # krb5-ldap.conf.sample
 install -m 0644 %{SOURCE27} .
