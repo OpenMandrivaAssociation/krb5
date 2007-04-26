@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.1
-%define rel		2
+%define rel		3
 %define release %mkrel %rel
 
 %define	major	3
@@ -55,6 +55,7 @@ Patch8:		krb5-1.3-ksu-access.patch
 Patch9:		krb5-1.3-pass-by-address.patch
 Patch10:	krb5-1.3-netkit-rsh.patch
 Patch13:	krb5-1.3-ftp-glob.patch
+Patch14:	krb5-1.6.1-ftp_remove_printf_debug.patch
 Patch19:	krb5-1.3.3-rcp-sendlarge.patch
 # (gb) preserve file names when generating files from *.et (multiarch fixes)
 Patch23:	krb5-1.3.6-et-preserve-file-names.patch
@@ -212,6 +213,7 @@ This version supports kerberos authentication.
 %patch9 -p1 -b .pass-by-address
 %patch10 -p1 -b .netkit-rsh
 %patch13 -p1 -b .ftp-glob
+%patch14 -p1 -b .ftp_remove_printf_debug
 %patch19 -p1 -b .rcp-sendlarge
 %patch23 -p1 -b .et-preserve-file-names
 %patch24 -p1 -b .lfs
