@@ -228,7 +228,8 @@ find -name "*\.h" | xargs perl -p -i -e "s|\<com_err|\<et/com_err|";
 find -name "*\.h" | xargs perl -p -i -e "s|\"com_err|\"et/com_err|";
 
 %build
-export CFLAGS=-I/usr/include/et 
+%serverbuild
+export CFLAGS="$CFLAGS -I/usr/include/et"
 find . -name "*.[ch]"|xargs grep -r -l "^extern int errno;" * | xargs perl -p -i -e "s|^extern int errno;|#include <errno.h>|"
 find . -name "*.[ch]"|xargs grep -r -l "extern int errno;" * | xargs perl -p -i -e "s|^extern int errno;||"
 
