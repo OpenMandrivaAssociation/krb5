@@ -63,8 +63,8 @@ Patch24:	krb5-1.4.1-ftplfs.patch
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
-Requires(pre):	/sbin/install-info
-Requires:	/sbin/install-info
+Requires(pre):	info-install
+Requires:	info-install
 BuildRequires:	bison flex termcap-devel texinfo e2fsprogs-devel
 BuildRequires:	tcl tcl-devel chrpath
 %if %enable_check
@@ -114,8 +114,8 @@ Summary:	The server programs for Kerberos 5
 Requires:	%{libname} = %{version}-%{release}
 Requires:	%{name}-workstation = %{version}-%{release}
 Requires:	words
-Requires(pre):	/sbin/install-info
-Requires:	/sbin/install-info
+Requires(pre):	info-install
+Requires:	info-install
 
 %description	server
 Kerberos is a network authentication system.  The krb5-server package
@@ -128,8 +128,8 @@ package).
 Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
 Requires:	%{libname} = %{version}-%{release}
-Requires(pre):	/sbin/install-info
-Requires:	/sbin/install-info
+Requires(pre):	info-install
+Requires:	info-install
 Provides:   kerberos-workstation
 Conflicts:	rsh <= 0.17-12mdk
 
