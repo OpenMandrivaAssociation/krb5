@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.2
-%define rel		2
+%define rel		3
 %define release %mkrel %rel
 
 %define	major	3
@@ -47,6 +47,9 @@ Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
 Source27:	krb5-ldap.conf.sample
 Patch0:		krb5-1.2.2-telnetbanner.patch
 Patch1:		krb5-1.2.5-biarch-utmp.patch
+# http://web.mit.edu/kerberos/www/advisories/MITKRB5-SA-2007-006.txt
+# http://web.mit.edu/kerberos/advisories/2007-006-patch.txt.asc
+Patch2:         2007-006-patch.txt
 Patch4:		krb5-1.3-no-rpath.patch
 # stolen from fedora
 Patch6:		krb5-1.3-large-file.patch
@@ -205,6 +208,7 @@ This version supports kerberos authentication.
 %setup -q -a 25
 %patch0 -p1 -b .banner
 %patch1 -p1 -b .biarch-utmp
+%patch2 -p0 -b .SA-2007-006
 %patch4 -p1 -b .no-rpath
 %patch6 -p1 -b .large-file
 %patch7 -p1 -b .ksu-path
