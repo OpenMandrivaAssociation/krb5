@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.2
-%define rel		3
+%define rel		4
 %define release %mkrel %rel
 
 %define	major	3
