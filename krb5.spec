@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.2
-%define rel		4
+%define rel		5
 %define release %mkrel %rel
 
 %define	major	3
@@ -66,6 +66,9 @@ Patch24:	krb5-1.4.1-ftplfs.patch
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
+# we moved some files from the lib package to this one, see
+# http://qa.mandriva.com/show_bug.cgi?id=32580
+Conflicts:      %{libname} <= 1.6.2-4mdv2008.0
 Requires(pre):	info-install
 Requires:	info-install
 BuildRequires:	bison flex termcap-devel texinfo e2fsprogs-devel
@@ -105,6 +108,7 @@ Group:		System/Libraries
 Provides:	krb5-libs = %{version}-%{release}
 Obsoletes:	krb5-libs
 Obsoletes:	libkrb51
+Requires:       %{name} = %{version}
 
 %description -n	%{libname}
 Kerberos is a network authentication system.  The krb5-libs package
@@ -133,7 +137,7 @@ Group:		System/Base
 Requires:	%{libname} = %{version}-%{release}
 Requires(pre):	info-install
 Requires:	info-install
-Provides:   kerberos-workstation
+Provides:       kerberos-workstation
 Conflicts:	rsh <= 0.17-12mdk
 
 %description	workstation
@@ -484,6 +488,14 @@ fi
 %clean
 rm -rf %{buildroot}
 
+%files
+%defattr(-,root,root)
+%doc README
+%config(noreplace) %{_sysconfdir}/krb5.conf
+%dir %{_sysconfdir}/kerberos
+%dir %{_libdir}/krb5
+%dir %{_libdir}/krb5/plugins
+
 %files workstation
 %defattr(-,root,root)
 %attr(0755,root,root) %config(noreplace) /etc/profile.d/krb5.sh
@@ -604,11 +616,7 @@ rm -rf %{buildroot}
 
 %files -n %{libname}
 %defattr(-,root,root)
-%doc README
-%config(noreplace) %{_sysconfdir}/krb5.conf
 %{_libdir}/lib*.so.*
-%dir %{_libdir}/krb5
-%dir %{_libdir}/krb5/plugins
 
 %files -n %{libname}-devel
 %defattr(-,root,root)
