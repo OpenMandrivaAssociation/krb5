@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.2
-%define rel		6
+%define rel		7
 %define release %mkrel %rel
 
 %define	major	3
@@ -69,6 +69,8 @@ Group:		System/Libraries
 # we moved some files from the lib package to this one, see
 # http://qa.mandriva.com/show_bug.cgi?id=32580
 Conflicts:      %{libname} <= 1.6.2-4mdv2008.0
+# (anssi) biarch conflicts as well:
+Conflicts:	libkrb53 <= 1.6.2-4mdv2008.0
 Requires(pre):	info-install
 Requires:	info-install
 BuildRequires:	bison flex termcap-devel texinfo e2fsprogs-devel
