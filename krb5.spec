@@ -77,7 +77,6 @@ BuildRequires:	dejagnu
 %endif
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	openldap-devel
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
