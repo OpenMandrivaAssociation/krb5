@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.3
-%define rel		1
+%define rel	2
 %define release %mkrel %rel
 
 %define	major	3
@@ -77,6 +77,7 @@ BuildRequires:	dejagnu
 %endif
 BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	openldap-devel
+Buildroot:	%{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
