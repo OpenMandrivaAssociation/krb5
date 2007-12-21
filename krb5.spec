@@ -414,15 +414,15 @@ fi
 
 %{_sbindir}/update-alternatives \
 	--install %{_bindir}/rcp rcp %{_bindir}/rcp.krb5 20 \
-	--slave %{_mandir}/man1/rcp.1.bz2 man-rcp %{_mandir}/man1/rcp.krb5.1.bz2
+	--slave %{_mandir}/man1/rcp.1%{_extension} man-rcp %{_mandir}/man1/rcp.krb5.1%{_extension}
 
 %{_sbindir}/update-alternatives \
 	--install %{_bindir}/rlogin rlogin %{_bindir}/rlogin.krb5 20 \
-	--slave %{_mandir}/man1/rlogin.1.bz2 man-rlogin %{_mandir}/man1/rlogin.krb5.1.bz2
+	--slave %{_mandir}/man1/rlogin.1%{_extension} man-rlogin %{_mandir}/man1/rlogin.krb5.1%{_extension}
 
 %{_sbindir}/update-alternatives \
 	--install %{_bindir}/rsh rsh %{_bindir}/rsh.krb5 20 \
-	--slave %{_mandir}/man1/rsh.1.bz2 man-rsh %{_mandir}/man1/rsh.krb5.1.bz2
+	--slave %{_mandir}/man1/rsh.1%{_extension} man-rsh %{_mandir}/man1/rsh.krb5.1%{_extension}
 
 
 %preun workstation
