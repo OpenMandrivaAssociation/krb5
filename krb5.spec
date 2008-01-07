@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.3
-%define rel	2
+%define rel	3
 %define release %mkrel %rel
 
 %define	major	3
@@ -107,7 +107,10 @@ Group:		System/Libraries
 Provides:	krb5-libs = %{version}-%{release}
 Obsoletes:	krb5-libs
 Obsoletes:	libkrb51
-Requires:       %{name} = %{version}
+# we need the conf file, and better make sure it's a recent version
+# for example, previous MIT kerberos versions didn't have ldap support,
+# and this is specified in the conf file
+Requires:       %{name} >= %{version}
 
 %description -n	%{libname}
 Kerberos is a network authentication system.  The krb5-libs package
