@@ -663,6 +663,7 @@ rm -rf %{buildroot}
 
 %files -n telnet-client-krb5
 %defattr(-,root,root)
+%config(noreplace) %{_sysconfdir}/apparmor.d/usr.bin.telnet
 %{_bindir}/telnet
 %{_mandir}/man1/telnet.1*
 
