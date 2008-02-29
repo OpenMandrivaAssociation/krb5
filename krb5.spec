@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.3
-%define rel	3
+%define rel	4
 %define release %mkrel %rel
 
 %define	major	3
@@ -45,6 +45,7 @@ Source24:	%{name}-%{version}.tar.gz.asc
 Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
 Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
 Source27:	krb5-ldap.conf.sample
+Source28:	usr.bin.telnet.apparmor
 Patch0:		krb5-1.2.2-telnetbanner.patch
 Patch1:		krb5-1.2.5-biarch-utmp.patch
 Patch4:		krb5-1.3-no-rpath.patch
@@ -364,6 +365,10 @@ mkdir -p %{buildroot}%{_mandir}/man8
 install -m 0644 src/plugins/kdb/ldap/ldap_util/kdb5_ldap_util.M \
 	%{buildroot}%{_mandir}/man8/kdb5_ldap_util.8
 
+# apparmor profile(s)
+mkdir -p %{buildroot}%{_sysconfdir}/apparmor.d
+install -m 0644 %{SOURCE28} %{buildroot}%{_sysconfdir}/apparmor.d/usr.bin.telnet
+
 %post -n %{libname} -p /sbin/ldconfig
 
 %postun -n %{libname} -p /sbin/ldconfig
@@ -485,6 +490,13 @@ fi
 
 %postun -n ftp-server-krb5
 /sbin/service xinetd reload > /dev/null 2>&1 || :
+
+%posttrans -n telnet-client-krb5
+# if we have apparmor installed, reload if it's being used
+if [ -x /sbin/apparmor_parser ]; then
+        /sbin/service apparmor condreload
+fi
+
 
 %clean
 rm -rf %{buildroot}
