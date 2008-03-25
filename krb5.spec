@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.3
-%define rel	4
+%define rel	5
 %define release %mkrel %rel
 
 %define	major	3
@@ -61,6 +61,10 @@ Patch19:	krb5-1.3.3-rcp-sendlarge.patch
 Patch23:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
 Patch24:	krb5-1.4.1-ftplfs.patch
+Patch25:	krb5-1.6.1-rh-CVE-2007-5901.patch
+Patch26:	krb5-1.6.1-rh-CVE-2007-5971.patch
+Patch27:	krb5-1.6.1-rh-CVE-2008-0062_0063.patch
+Patch28:	krb5-1.6.1-rh-CVE-2008-0947.patch
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -225,6 +229,10 @@ This version supports kerberos authentication.
 %patch19 -p1 -b .rcp-sendlarge
 %patch23 -p1 -b .et-preserve-file-names
 %patch24 -p1 -b .lfs
+%patch25 -p0 -b .cve-2007-5901
+%patch26 -p0 -b .cve-2007-5971
+%patch27 -p0 -b .cve-2008-0062_0063
+%patch28 -p0 -b .cve-2008-0947
 
 # krb5-ldap.conf.sample
 install -m 0644 %{SOURCE27} .
@@ -677,4 +685,3 @@ rm -rf %{buildroot}
 %config(noreplace) /etc/xinetd.d/ftp
 %{_sbindir}/ftpd
 %{_mandir}/man8/ftpd.8*
-
