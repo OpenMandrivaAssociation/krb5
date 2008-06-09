@@ -377,9 +377,13 @@ install -m 0644 src/plugins/kdb/ldap/ldap_util/kdb5_ldap_util.M \
 mkdir -p %{buildroot}%{_sysconfdir}/apparmor.d
 install -m 0644 %{SOURCE28} %{buildroot}%{_sysconfdir}/apparmor.d/usr.bin.telnet
 
+%if %mdkversion < 200900
 %post -n %{libname} -p /sbin/ldconfig
+%endif
 
+%if %mdkversion < 200900
 %postun -n %{libname} -p /sbin/ldconfig
+%endif
 
 %post server
 # Remove the init script for older servers.
