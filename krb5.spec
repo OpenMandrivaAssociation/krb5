@@ -220,7 +220,7 @@ This version supports kerberos authentication.
 %setup -q -a 25
 %patch0 -p1 -b .banner
 %patch1 -p1 -b .biarch-utmp
-%patch4 -p1 -b .no-rpath
+%patch4 -p0 -b .no-rpath
 %patch6 -p1 -b .large-file
 %patch7 -p1 -b .ksu-path
 %patch8 -p1 -b .ksu-access
@@ -233,7 +233,7 @@ This version supports kerberos authentication.
 %patch25 -p0 -b .cve-2007-5901
 %patch26 -p0 -b .cve-2007-5971
 %patch27 -p0 -b .cve-2008-0062_0063
-%patch28 -p0 -b .cve-2008-0947
+%patch28 -p1 -b .cve-2008-0947
 %patch29 -p1 -b .tcl86
 
 # krb5-ldap.conf.sample
