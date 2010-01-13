@@ -1,7 +1,6 @@
-%define Werror_cflags %nil
 %define	name	krb5
-%define version 1.7
-%define rel	10
+%define version 1.6.3
+%define rel	11
 %define release %mkrel %rel
 
 %define	major	3
@@ -43,7 +42,7 @@ Source21:	telnet.32.xpm
 Source22:	telnet.48.xpm
 Source23:	Mandriva-Kerberos-HOWTO.html
 Source24:	%{name}-%{version}.tar.gz.asc
-# Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
+Source25:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.tar.gz
 Source26:	http://web.mit.edu/kerberos/www/advisories/2003-004-krb4_patchkit.sig
 Source27:	krb5-ldap.conf.sample
 Source28:	usr.bin.telnet.apparmor
@@ -223,28 +222,28 @@ The ftp-server package provides an ftp server.
 This version supports kerberos authentication.
 
 %prep
-%setup -q
-# %patch0 -p1 -b .banner
+%setup -q -a 25
+%patch0 -p1 -b .banner
 %patch1 -p1 -b .biarch-utmp
-# %patch4 -p0 -b .no-rpath
+%patch4 -p0 -b .no-rpath
 %patch6 -p1 -b .large-file
 %patch7 -p1 -b .ksu-path
 %patch8 -p1 -b .ksu-access
-# %patch9 -p1 -b .pass-by-address
+%patch9 -p1 -b .pass-by-address
 %patch10 -p1 -b .netkit-rsh
 %patch13 -p1 -b .ftp-glob
-# %patch19 -p1 -b .rcp-sendlarge
-# %patch23 -p1 -b .et-preserve-file-names
-# %patch24 -p1 -b .lfs
-# %patch25 -p0 -b .cve-2007-5901
-# %patch26 -p0 -b .cve-2007-5971
-# %patch27 -p0 -b .cve-2008-0062_0063
-# %patch28 -p1 -b .cve-2008-0947
-# %patch29 -p1 -b .tcl86
-# %patch30 -p1 -b .CVE-2009-0844_0845
-# %patch31 -p1 -b .format
-# %patch32 -p1 -b .CVE-2009-0846
-# %patch33 -p1 -b .CVE-2009-0847
+%patch19 -p1 -b .rcp-sendlarge
+%patch23 -p1 -b .et-preserve-file-names
+%patch24 -p1 -b .lfs
+%patch25 -p0 -b .cve-2007-5901
+%patch26 -p0 -b .cve-2007-5971
+%patch27 -p0 -b .cve-2008-0062_0063
+%patch28 -p1 -b .cve-2008-0947
+%patch29 -p1 -b .tcl86
+%patch30 -p1 -b .CVE-2009-0844_0845
+%patch31 -p1 -b .format
+%patch32 -p1 -b .CVE-2009-0846
+%patch33 -p1 -b .CVE-2009-0847
 
 # krb5-ldap.conf.sample
 install -m 0644 %{SOURCE27} .
