@@ -49,6 +49,7 @@ Source28:	usr.bin.telnet.apparmor
 Patch0:		krb5-1.2.2-telnetbanner.patch
 Patch1:		krb5-1.2.5-biarch-utmp.patch
 Patch4:		krb5-1.3-no-rpath.patch
+Patch5:		krb5-1.6.3-fix-link.patch
 # stolen from fedora
 Patch6:		krb5-1.3-large-file.patch
 Patch7:		krb5-1.5.1-ksu-path.patch
@@ -57,6 +58,7 @@ Patch9:		krb5-1.3-pass-by-address.patch
 Patch10:	krb5-1.3-netkit-rsh.patch
 Patch13:	krb5-1.3-ftp-glob.patch
 Patch19:	krb5-1.3.3-rcp-sendlarge.patch
+Patch20:	krb5-1.7-openssl-1.0.patch
 # (gb) preserve file names when generating files from *.et (multiarch fixes)
 Patch23:	krb5-1.3.6-et-preserve-file-names.patch
 # http://qa.mandriva.com/show_bug.cgi?id=9410
@@ -226,6 +228,7 @@ This version supports kerberos authentication.
 %patch0 -p1 -b .banner
 %patch1 -p1 -b .biarch-utmp
 %patch4 -p0 -b .no-rpath
+%patch5 -p0 -b .link
 %patch6 -p1 -b .large-file
 %patch7 -p1 -b .ksu-path
 %patch8 -p1 -b .ksu-access
@@ -233,6 +236,7 @@ This version supports kerberos authentication.
 %patch10 -p1 -b .netkit-rsh
 %patch13 -p1 -b .ftp-glob
 %patch19 -p1 -b .rcp-sendlarge
+%patch20 -p0 -b .openssl
 %patch23 -p1 -b .et-preserve-file-names
 %patch24 -p1 -b .lfs
 %patch25 -p0 -b .cve-2007-5901
@@ -265,12 +269,7 @@ cd src
 %{?__cputoolize: %{__cputoolize} -c config}
 
 DEFINES="-D_FILE_OFFSET_BITS=64" ; export DEFINES
-# don't use %%configure, it expands wrongly for some reason
-./configure \
-	--prefix=%{_prefix} \
-	--sysconfdir=%{_sysconfdir} \
-	--infodir=%{_infodir} \
-	--mandir=%{_mandir} \
+%configure2_5x \
 	--localstatedir=%{_sysconfdir}/kerberos \
 %if %{with_krb4}
 	--with-krb4 \
@@ -281,8 +280,6 @@ DEFINES="-D_FILE_OFFSET_BITS=64" ; export DEFINES
 	--with-tcl=%{_prefix} \
 	--with-system-et \
 	--with-system-ss \
-	--libexecdir=%{_libdir} \
-	--libdir=%{_libdir} \
 	--enable-shared   \
 	--disable-static  \
 	--with-ldap
@@ -670,7 +667,11 @@ rm -rf %{buildroot}
 #multiarch %{multiarch_includedir}/krb5/autoconf.h
 #multiarch %{multiarch_includedir}/krb5/osconf.h
 %multiarch %{multiarch_includedir}/krb5.h
-%{_includedir}/*
+%{_includedir}/*.h
+%{_includedir}/gssapi
+%{_includedir}/gssrpc
+%{_includedir}/kadm5
+%{_includedir}/krb5
 %{_bindir}/krb5-config
 %{_libdir}/lib*.so
 %{_bindir}/sclient
