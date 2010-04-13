@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.6.3
-%define rel	14
+%define rel	15
 %define release %mkrel %rel
 
 %define	major	3
@@ -73,6 +73,7 @@ Patch31:	krb5-1.6.3-fix-format-errors.patch
 Patch32:	krb5-1.6.3-CVE-2009-0846.patch
 Patch33:	krb5-1.6.3-CVE-2009-0847.patch
 Patch34:	krb5-1.6.3-CVE-2009-4212.diff
+Patch35:	krb5-1.6.2-CVE-2010-0629.diff
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -249,6 +250,7 @@ This version supports kerberos authentication.
 %patch32 -p1 -b .CVE-2009-0846
 %patch33 -p1 -b .CVE-2009-0847
 %patch34 -p1 -b .CVE-2009-4212
+%patch35 -p1 -b .CVE-2010-0629
 
 # krb5-ldap.conf.sample
 install -m 0644 %{SOURCE27} .
