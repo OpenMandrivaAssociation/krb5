@@ -59,10 +59,13 @@ Group:		System/Libraries
 Conflicts:      %{libname} <= 1.6.2-4mdv2008.0
 # (anssi) biarch conflicts as well:
 Conflicts:	libkrb53 <= 1.6.2-4mdv2008.0
-Requires(pre):	info-install
-Requires:	info-install
-BuildRequires:	bison flex termcap-devel texinfo e2fsprogs-devel
-BuildRequires:	tcl tcl-devel chrpath
+BuildRequires:	flex
+BuildRequires:	bison
+BuildRequires:	chrpath
+BuildRequires:	texinfo
+BuildRequires:	termcap-devel
+BuildRequires:	e2fsprogs-devel
+BuildRequires:	pam-devel
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
