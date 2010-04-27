@@ -127,7 +127,7 @@ package (in other words, most people should NOT install this
 package).
 
 %package server-ldap
-Group: System Environment/Daemons
+Group:		System/Servers
 Summary: The LDAP storage plugin for the Kerberos 5 KDC
 Requires: %{name}-server = %{version}-%{release}
 
@@ -153,8 +153,8 @@ kpasswd). If your network uses Kerberos, this package should be installed
 on every workstation.
 
 %package pkinit-openssl
-Summary: The PKINIT module for Kerberos 5
-Group: System Environment/Libraries
+Summary:    The PKINIT module for Kerberos 5
+Group:		System/Libraries
 Requires: %{name}-libs = %{version}-%{release}
 
 %description pkinit-openssl
