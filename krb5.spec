@@ -1,7 +1,6 @@
 %define	name	krb5
 %define version 1.8.1
-%define rel	2
-%define release %mkrel %rel
+%define release %mkrel 3
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -479,9 +478,6 @@ rm -rf %{buildroot}
 %multiarch %{multiarch_bindir}/krb5-config
 %multiarch %{multiarch_includedir}/gssapi/gssapi.h
 %multiarch %{multiarch_includedir}/gssrpc/types.h
-# multiarch %{multiarch_includedir}/krb5/k5-config.h
-#multiarch %{multiarch_includedir}/krb5/autoconf.h
-#multiarch %{multiarch_includedir}/krb5/osconf.h
 %multiarch %{multiarch_includedir}/krb5.h
 %{_includedir}/*.h
 %{_includedir}/gssapi
@@ -489,7 +485,16 @@ rm -rf %{buildroot}
 %{_includedir}/kadm5
 %{_includedir}/krb5
 %{_bindir}/krb5-config
-%{_libdir}/lib*.so
+%{_libdir}/libgssapi_krb5.so
+%{_libdir}/libgssrpc.so
+%{_libdir}/libk5crypto.so
+%{_libdir}/libkadm5clnt.so
+%{_libdir}/libkadm5clnt_mit.so
+%{_libdir}/libkadm5srv.so
+%{_libdir}/libkadm5srv_mit.so
+%{_libdir}/libkdb5.so
+%{_libdir}/libkrb5.so
+%{_libdir}/libkrb5support.so 
 %{_bindir}/sclient
 %{_mandir}/man1/sclient.1*
 %{_sbindir}/sserver
