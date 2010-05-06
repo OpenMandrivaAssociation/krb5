@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.8.1
-%define release %mkrel 3
+%define release %mkrel 4
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -308,6 +308,9 @@ make -C src \
 
 # logdir
 install -d %{buildroot}/var/log/kerberos
+
+# clear the LDFLAGS
+perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 
 # multiarch policy
 %multiarch_binaries %{buildroot}%{_bindir}/krb5-config
