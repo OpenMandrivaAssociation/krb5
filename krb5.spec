@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.8.1
-%define release %mkrel 4
+%define release %mkrel 5
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -49,6 +49,7 @@ Patch59: krb5-1.8-kpasswd_tcp.patch
 Patch60: krb5-1.8-pam.patch
 Patch61: krb5-1.8-manpaths.patch
 Patch72: http://web.mit.edu/kerberos/advisories/2010-004-patch.txt 
+Patch73: http://web.mit.edu/kerberos/advisories/2010-005-patch.txt 
 
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
@@ -179,7 +180,8 @@ certificate.
 %patch56 -p1 -b .doublelog
 %patch58 -p1 -b .key_exp
 %patch59 -p1 -b .kpasswd_tcp
-%patch72 -p1 -b .2010-004 
+%patch72 -p1 -b .CVE-2010-1320
+%patch73 -p1 -b .CVE-2010-1321
 
 gzip doc/*.ps
 
