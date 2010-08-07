@@ -1,5 +1,5 @@
 %define	name	krb5
-%define version 1.8.2
+%define version 1.8.3
 %define release %mkrel 1
 
 %define	major	3
@@ -49,9 +49,6 @@ Patch59: krb5-1.8-kpasswd_tcp.patch
 Patch60: krb5-1.8-pam.patch
 Patch61: krb5-1.8-manpaths.patch 
 Patch71: krb5-1.8-dirsrv-accountlock.patch
-Patch72: krb5-1.7.1-24139.patch
-Patch73: krb5-1-8-gss-noexp.patch
-Patch74: krb5-1.8.2-getoptP.patch 
 
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
@@ -183,9 +180,6 @@ certificate.
 %patch58 -p1 -b .key_exp
 %patch59 -p1 -b .kpasswd_tcp
 %patch71 -p1 -b .dirsrv-accountlock 
-%patch72 -p1 -b .24139 
-%patch73 -p0 -b .gss-noexp
-%patch74 -p1 -b .getoptP 
 
 gzip doc/*.ps
 
