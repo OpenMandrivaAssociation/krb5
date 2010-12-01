@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.8.3
-%define release %mkrel 2
+%define release %mkrel 3
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -50,6 +50,7 @@ Patch60: krb5-1.8-pam.patch
 Patch61: krb5-1.8-manpaths.patch 
 Patch71: krb5-1.8-dirsrv-accountlock.patch
 Patch72: http://web.mit.edu/kerberos/advisories/2010-006-patch.txt
+Patch73: krb5-1.8.1-CVE-2010-1323,1324,4020.diff
 
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
@@ -182,6 +183,7 @@ certificate.
 %patch59 -p1 -b .kpasswd_tcp
 %patch71 -p1 -b .dirsrv-accountlock 
 %patch72 -p1 -b .CVE-2010-1322
+%patch73 -p1 -b .CVE-2010-1323,1324,4020
 
 gzip doc/*.ps
 
