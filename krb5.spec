@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.8.3
-%define release %mkrel 3
+%define release %mkrel 4
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -366,7 +366,6 @@ rm -rf %{buildroot}
 %dir %{_libdir}/krb5/plugins
 %{_mandir}/man1/kerberos.1*
 %{_mandir}/man5/.k5login.5*
-%{_mandir}/man5/krb5.conf.5*
 
 %files workstation
 %defattr(-,root,root)
@@ -375,6 +374,7 @@ rm -rf %{buildroot}
 %doc doc/krb5-user.html 
 %attr(0755,root,root) %doc src/config-files/convert-config-files
 %{_infodir}/krb5-user.info*
+%{_mandir}/man5/krb5.conf.5*
 
 %{_bindir}/kdestroy
 %{_mandir}/man1/kdestroy.1*
@@ -402,7 +402,6 @@ rm -rf %{buildroot}
 %{_datadir}/gnats
 %{_sbindir}/krb5-send-pr
 %{_mandir}/man1/krb5-send-pr.1*
-
 
 %files server
 %defattr(-,root,root)
