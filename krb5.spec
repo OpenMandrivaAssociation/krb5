@@ -1,6 +1,6 @@
 %define	name	krb5
-%define version 1.8.3
-%define release %mkrel 4
+%define version 1.9
+%define release %mkrel 1
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -24,7 +24,7 @@ Source10:	kdc.conf
 Source11:	kadm5.acl 
 Source19:	krb5kdc.sysconfig 
 Source20:	kadmin.sysconfig
-Source23: krb5-%{version}-pdf.tar.gz
+Source23: krb5-%{version}-pdf.tar.bz2
 Source24: krb5-tex-pdf.sh
 Source25: krb5-1.8-manpaths.txt 
 Source29: ksu.pamd
@@ -32,7 +32,7 @@ Source30: kerberos-iv.portreserve
 Source31: kerberos-adm.portreserve
 Source32: krb5_prop.portreserve 
 
-Patch0:    krb5-1.8.1-fix-format-errors.patch
+# Patch0:    krb5-1.8.1-fix-format-errors.patch
 # stolen from fedora
 Patch5:  krb5-1.8-ksu-access.patch
 Patch6:  krb5-1.8-ksu-path.patch
@@ -47,10 +47,13 @@ Patch56: krb5-1.7-doublelog.patch
 Patch58: krb5-1.8-key_exp.patch
 Patch59: krb5-1.8-kpasswd_tcp.patch
 Patch60: krb5-1.8-pam.patch
-Patch61: krb5-1.8-manpaths.patch 
-Patch71: krb5-1.8-dirsrv-accountlock.patch
+Patch61: krb5-1.9-manpaths.patch 
+Patch71: krb5-1.9-dirsrv-accountlock.patch
 Patch72: http://web.mit.edu/kerberos/advisories/2010-006-patch.txt
 Patch73: krb5-1.8.1-CVE-2010-1323,1324,4020.diff
+Patch74: krb5-1.9-buildconf.patch
+Patch75: krb5-1.9-kprop-mktemp.patch
+Patch76: krb5-1.9-ksu-path.patch
 
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
@@ -166,24 +169,27 @@ certificate.
 
 %prep
 %setup -q -a 23 
-%patch0 -p1
+# %patch0 -p1
 %patch60 -p1 -b .pam
 %patch61 -p1 -b .manpaths
 %patch5 -p1 -b .ksu-access
-%patch6 -p1 -b .ksu-path
+# %patch6 -p1 -b .ksu-path
 %patch12 -p1 -b .ktany
 %patch16 -p1 -b .buildconf
 %patch23 -p1 -b .dns
-%patch29 -p1 -b .kprop-mktemp
+# %patch29 -p1 -b .kprop-mktemp
 %patch30 -p1 -b .send-pr-tempfile
 %patch39 -p1 -b .api
 %patch53 -p1 -b .nodeplibs
 %patch56 -p1 -b .doublelog
-%patch58 -p1 -b .key_exp
+# %patch58 -p1 -b .key_exp
 %patch59 -p1 -b .kpasswd_tcp
 %patch71 -p1 -b .dirsrv-accountlock 
-%patch72 -p1 -b .CVE-2010-1322
-%patch73 -p1 -b .CVE-2010-1323,1324,4020
+# %patch72 -p1 -b .CVE-2010-1322
+# %patch73 -p1 -b .CVE-2010-1323,1324,4020
+# %patch74 -p1 -b .buildconf
+%patch75 -p1
+%patch76 -p1
 
 gzip doc/*.ps
 
