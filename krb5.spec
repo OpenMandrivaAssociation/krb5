@@ -169,25 +169,25 @@ certificate.
 
 %prep
 %setup -q -a 23 
-# %patch0 -p1
+#%%patch0 -p1
 %patch60 -p1 -b .pam
 %patch61 -p1 -b .manpaths
 %patch5 -p1 -b .ksu-access
-# %patch6 -p1 -b .ksu-path
+#%%patch6 -p1 -b .ksu-path
 %patch12 -p1 -b .ktany
 %patch16 -p1 -b .buildconf
 %patch23 -p1 -b .dns
-# %patch29 -p1 -b .kprop-mktemp
+#%%patch29 -p1 -b .kprop-mktemp
 %patch30 -p1 -b .send-pr-tempfile
 %patch39 -p1 -b .api
 %patch53 -p1 -b .nodeplibs
 %patch56 -p1 -b .doublelog
-# %patch58 -p1 -b .key_exp
+#%%patch58 -p1 -b .key_exp
 %patch59 -p1 -b .kpasswd_tcp
 %patch71 -p1 -b .dirsrv-accountlock 
-# %patch72 -p1 -b .CVE-2010-1322
-# %patch73 -p1 -b .CVE-2010-1323,1324,4020
-# %patch74 -p1 -b .buildconf
+#%%patch72 -p1 -b .CVE-2010-1322
+#%%patch73 -p1 -b .CVE-2010-1323,1324,4020
+#%%patch74 -p1 -b .buildconf
 %patch75 -p1
 %patch76 -p1
 
