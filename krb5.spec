@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.9
-%define release %mkrel 3
+%define release %mkrel 4
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -50,6 +50,7 @@ Patch76:	krb5-1.9-ksu-path.patch
 Patch77:	http://web.mit.edu/kerberos/advisories/2011-001-patch.txt
 Patch78:	http://web.mit.edu/kerberos/advisories/2011-002-patch.txt
 Patch79:	http://web.mit.edu/kerberos/advisories/2011-003-patch.txt
+Patch80:	http://web.mit.edu/kerberos/advisories/2011-004-patch.txt
 
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
@@ -183,6 +184,7 @@ certificate.
 %patch77 -p1 -b .CVE-2010-4022
 %patch78 -p1 -b .CVE-2011-0281,0282,0283
 %patch79 -p1 -b .CVE-2011-0284
+%patch80 -p1 -b .CVE-2011-0285
 
 gzip doc/*.ps
 
