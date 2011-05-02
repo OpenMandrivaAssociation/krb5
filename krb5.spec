@@ -1,6 +1,6 @@
 %define	name	krb5
 %define version 1.9
-%define release %mkrel 4
+%define release %mkrel 5
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -70,7 +70,6 @@ BuildRequires:	pam-devel
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
-BuildRequires:	multiarch-utils >= 1.0.3
 BuildRequires:	openldap-devel
 Buildroot:	%{_tmppath}/%{name}-%{version}
 
@@ -319,12 +318,17 @@ perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 
 # multiarch policy
 %multiarch_binaries %{buildroot}%{_bindir}/krb5-config
+
 %multiarch_includes %{buildroot}%{_includedir}/gssapi/gssapi.h
+
 # (gb) this one could be fixed differently and properly using <stdint.h>
+
 %multiarch_includes %{buildroot}%{_includedir}/gssrpc/types.h
+
 # multiarch_includes %{buildroot}%{_includedir}/krb5/k5-config.h
 # multiarch_includes %{buildroot}%{_includedir}/krb5/autoconf.h
 # multiarch_includes %{buildroot}%{_includedir}/krb5/osconf.h
+
 %multiarch_includes %{buildroot}%{_includedir}/krb5.h
 
 %if %mdkversion < 200900
@@ -482,16 +486,18 @@ rm -rf %{buildroot}
 %doc doc/kadmin
 %doc doc/krb5-protocol
 %doc doc/rpc
-%multiarch %{multiarch_bindir}/krb5-config
-%multiarch %{multiarch_includedir}/gssapi/gssapi.h
-%multiarch %{multiarch_includedir}/gssrpc/types.h
-%multiarch %{multiarch_includedir}/krb5.h
 %{_includedir}/*.h
 %{_includedir}/gssapi
 %{_includedir}/gssrpc
 %{_includedir}/kadm5
 %{_includedir}/krb5
+%dir %{multiarch_includedir}/gssapi
+%{multiarch_includedir}/gssapi/gssapi.h
+%dir %{multiarch_includedir}/gssrpc
+%{multiarch_includedir}/gssrpc/types.h
+%{multiarch_includedir}/krb5.h
 %{_bindir}/krb5-config
+%{multiarch_bindir}/krb5-config
 %{_libdir}/libgssapi_krb5.so
 %{_libdir}/libgssrpc.so
 %{_libdir}/libk5crypto.so
