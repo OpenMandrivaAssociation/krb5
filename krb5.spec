@@ -1,6 +1,6 @@
 %define	name	krb5
-%define version 1.9
-%define release %mkrel 5
+%define version 1.9.1
+%define release %mkrel 1
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -13,7 +13,7 @@ Summary:	The Kerberos network authentication system
 Name:		%{name}
 Version:	%{version}
 Release:	%{release}
-# from http://web.mit.edu/kerberos/dist/krb5/1.4/krb5-1.4.1-signed.tar
+# from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.1-signed.tar
 Source0:	%{name}-%{version}.tar.gz
 Source1:	%{name}-%{version}.tar.gz.asc
 Source2:	kprop.init
@@ -47,11 +47,6 @@ Patch71:	krb5-1.9-dirsrv-accountlock.patch
 Patch74:	krb5-1.9-buildconf.patch
 Patch75:	krb5-1.9-kprop-mktemp.patch
 Patch76:	krb5-1.9-ksu-path.patch
-Patch77:	http://web.mit.edu/kerberos/advisories/2011-001-patch.txt
-Patch78:	http://web.mit.edu/kerberos/advisories/2011-002-patch.txt
-Patch79:	http://web.mit.edu/kerberos/advisories/2011-003-patch.txt
-Patch80:	http://web.mit.edu/kerberos/advisories/2011-004-patch.txt
-
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -180,10 +175,6 @@ certificate.
 %patch74 -p1 -b .buildconf
 %patch75 -p1
 %patch76 -p1
-%patch77 -p1 -b .CVE-2010-4022
-%patch78 -p1 -b .CVE-2011-0281,0282,0283
-%patch79 -p1 -b .CVE-2011-0284
-%patch80 -p1 -b .CVE-2011-0285
 
 gzip doc/*.ps
 
