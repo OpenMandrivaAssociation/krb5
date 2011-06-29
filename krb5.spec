@@ -1,3 +1,7 @@
+%define bootstrap 0
+%{?_without_bootstrap: %global bootstrap 0}
+%{?_with_bootstrap: %global bootstrap 1}
+
 %define	name	krb5
 %define version 1.9.1
 %define release %mkrel 1
@@ -65,7 +69,9 @@ BuildRequires:	pam-devel
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
+%if !%bootstrap
 BuildRequires:	openldap-devel
+%endif
 Buildroot:	%{_tmppath}/%{name}-%{version}
 
 %description
@@ -227,7 +233,9 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
     --with-system-ss \
     --disable-static \
     --disable-rpath \
+%if !%bootstrap
     --with-ldap \
+%endif
     --with-pam
 
     #--with-netlib=-lresolv
@@ -427,8 +435,10 @@ rm -rf %{buildroot}
 %{_mandir}/man8/kadmind.8*
 %{_sbindir}/kdb5_util
 %{_mandir}/man8/kdb5_util.8*
+%if !%bootstrap
 %{_sbindir}/kdb5_ldap_util
 %{_mandir}/man8/kdb5_ldap_util.8*
+%endif
 %{_sbindir}/kprop
 %{_mandir}/man8/kprop.8*
 %{_sbindir}/kpropd
@@ -530,7 +540,9 @@ rm -rf %{buildroot}
 %dir %{_libdir}/krb5
 %dir %{_libdir}/krb5/plugins
 %dir %{_libdir}/krb5/plugins/kdb
+%if !%bootstrap
 %{_libdir}/krb5/plugins/kdb/kldap.so
 %{_libdir}/libkdb_ldap.so
 %{_libdir}/libkdb_ldap.so.*
 %{_sbindir}/kdb5_ldap_util
+%endif
