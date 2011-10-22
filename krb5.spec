@@ -4,7 +4,7 @@
 
 %define	name	krb5
 %define version 1.9.1
-%define release %mkrel 1
+%define release %mkrel 2
 
 %define	major	3
 %define	libname	%mklibname %name %major
@@ -51,6 +51,7 @@ Patch71:	krb5-1.9-dirsrv-accountlock.patch
 Patch74:	krb5-1.9-buildconf.patch
 Patch75:	krb5-1.9-kprop-mktemp.patch
 Patch76:	krb5-1.9-ksu-path.patch
+Patch77:	http://web.mit.edu/kerberos/advisories/2011-006-patch.txt
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -181,6 +182,7 @@ certificate.
 %patch74 -p1 -b .buildconf
 %patch75 -p1
 %patch76 -p1
+%patch77 -p1 -b .CVE-2011-1527,1528,1529
 
 gzip doc/*.ps
 
