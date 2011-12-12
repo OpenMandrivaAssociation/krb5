@@ -240,6 +240,7 @@ popd
 # it does not work with -fPIE and someone added that to the serverbuild macro...
 CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
 CXXFLAGS=`echo $CXXFLAGS|sed -e 's|-fPIE||g'`
+CXXFLAGS=`echo $RPM_OPT_FLAGS|sed -e 's|-fPIE||g'`
 
 cd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
