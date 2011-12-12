@@ -52,6 +52,7 @@ Patch71:	krb5-1.9-dirsrv-accountlock.patch
 Patch74:	krb5-1.9-buildconf.patch
 Patch75:	krb5-1.9-kprop-mktemp.patch
 Patch76:	krb5-1.9-ksu-path.patch
+Patch78:	http://web.mit.edu/kerberos/advisories/2011-007-patch.txt
 BuildRequires:	autoconf automake libtool
 BuildRequires:	bison
 BuildRequires:	e2fsprogs-devel
@@ -192,6 +193,7 @@ certificate.
 %patch74 -p1 -b .buildconf
 %patch75 -p1
 %patch76 -p1
+%patch78 -p1 -b .CVE-2011-1530
 
 gzip doc/*.ps
 
