@@ -12,7 +12,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.9.2
-Release:	%mkrel 1
+Release:	2
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -69,7 +69,6 @@ BuildRequires:	dejagnu
 %if !%bootstrap
 BuildRequires:	openldap-devel
 %endif
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -415,11 +414,7 @@ fi
 /bin/systemctl try-restart kadmin.service >/dev/null 2>&1 || :
 /bin/systemctl try-restart kprop.service >/dev/null 2>&1 || :
 
-%clean
-rm -rf %{buildroot}
-
 %files
-%defattr(-,root,root)
 %doc README
 %config(noreplace) %{_sysconfdir}/krb5.conf
 %dir %{_sysconfdir}/kerberos
@@ -429,7 +424,6 @@ rm -rf %{buildroot}
 %{_mandir}/man5/.k5login.5*
 
 %files workstation
-%defattr(-,root,root)
 %doc doc/user*.ps.gz src/config-files/services.append
 %doc doc/{kdestroy,kinit,klist,kpasswd,ksu}.html
 %doc doc/krb5-user.html 
@@ -465,7 +459,6 @@ rm -rf %{buildroot}
 %{_mandir}/man1/krb5-send-pr.1*
 
 %files server
-%defattr(-,root,root)
 %{_unitdir}/krb5kdc.service
 %{_unitdir}/kadmin.service
 %{_unitdir}/kprop.service
@@ -521,7 +514,6 @@ rm -rf %{buildroot}
 %dir %{_libdir}/krb5/plugins/authdata
 
 %files -n %{libname}
-%defattr(-,root,root)
 %{_libdir}/libgssapi_krb5.so.*
 %{_libdir}/libgssrpc.so.*
 %{_libdir}/libk5crypto.so.*
@@ -537,7 +529,6 @@ rm -rf %{buildroot}
 %{_libdir}/krb5/plugins/kdb/db2.so 
 
 %files -n %{libname}-devel
-%defattr(-,root,root)
 %doc doc/api
 %doc doc/implement
 %doc doc/kadm5
@@ -584,14 +575,12 @@ rm -rf %{buildroot}
 %{_mandir}/man5/krb5.conf.5*
 
 %files pkinit-openssl
-%defattr(-,root,root)
 %dir %{_libdir}/krb5
 %dir %{_libdir}/krb5/plugins
 %dir %{_libdir}/krb5/plugins/preauth
 %{_libdir}/krb5/plugins/preauth/pkinit.so
 
 %files server-ldap
-%defattr(-,root,root)
 %doc src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif
 %doc src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema
 %dir %{_libdir}/krb5
