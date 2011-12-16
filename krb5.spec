@@ -569,7 +569,6 @@ fi
 # Protocol test servers
 %{_sbindir}/gss-server
 %{_sbindir}/uuserver
-%{_mandir}/man5/.k5login.5*
 %{_mandir}/man5/krb5.conf.5*
 
 %files pkinit-openssl
@@ -588,5 +587,4 @@ fi
 %{_libdir}/krb5/plugins/kdb/kldap.so
 %{_libdir}/libkdb_ldap.so
 %{_libdir}/libkdb_ldap.so.*
-%{_sbindir}/kdb5_ldap_util
 %endif
