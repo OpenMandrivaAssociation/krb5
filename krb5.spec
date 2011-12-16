@@ -504,9 +504,6 @@ fi
 %{_sbindir}/krb5kdc
 %{_mandir}/man8/krb5kdc.8*
 %{_sbindir}/sim_server
-
-# This is here for people who want to test their server, and also 
-# included in devel package for similar reasons.
 %{_bindir}/sclient
 %{_mandir}/man1/sclient.1*
 %{_sbindir}/sserver
@@ -562,10 +559,6 @@ fi
 %{_libdir}/libkdb5.so
 %{_libdir}/libkrb5.so
 %{_libdir}/libkrb5support.so
-%{_bindir}/sclient
-%{_mandir}/man1/sclient.1*
-%{_sbindir}/sserver
-%{_mandir}/man8/sserver.8*
 %{_mandir}/man1/krb5-config.1*
 
 # Protocol test clients
