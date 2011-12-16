@@ -569,7 +569,6 @@ fi
 # Protocol test servers
 %{_sbindir}/gss-server
 %{_sbindir}/uuserver
-%{_mandir}/man5/krb5.conf.5*
 
 %files pkinit-openssl
 %dir %{_libdir}/krb5
