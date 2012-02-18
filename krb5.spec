@@ -3,8 +3,29 @@
 %{?_with_bootstrap: %global bootstrap 1}
 
 %define	major 3
-%define	libname	%mklibname %name %major
+%define	libname	%mklibname %{name}_ %{major}
+%define	libk5crypto	%mklibname k5crypto %{major}
 
+%define	support_major 0
+%define	libnamesupport	%mklibname %{name}support %{support_major}
+
+%define	mit_major 0
+%define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
+%define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
+
+%define	gssapi_major 2
+%define	libgssapi_krb5	%mklibname gssapi_%{name}_ %{gssapi_major}
+
+%define	gssrpc_major 4
+%define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
+
+%define	kdb5_major 4
+%define	libkdb5	%mklibname kdb5_ %{kdb5_major}
+
+%define	ldap_major 1
+%define	libkdb_ldap	%mklibname kdb_ldap %{ldap_major}
+
+%define develname	%mklibname -d %{name}
 # enable checking after compile
 %define enable_check 0
 %{?_with_check: %global %enable_check 1}
@@ -12,7 +33,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.9.2
-Release:	2
+Release:	3
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -53,7 +74,7 @@ Patch74:	krb5-1.9-buildconf.patch
 Patch75:	krb5-1.9-kprop-mktemp.patch
 Patch76:	krb5-1.9-ksu-path.patch
 Patch78:	http://web.mit.edu/kerberos/advisories/2011-007-patch.txt
-BuildRequires:	autoconf automake libtool
+BuildRequires:	libtool
 BuildRequires:	bison
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	flex
@@ -66,62 +87,122 @@ BuildRequires:	termcap-devel
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
-%if !%bootstrap
+%if !%{bootstrap}
 BuildRequires:	openldap-devel
 %endif
+Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
 which can improve your network's security by eliminating the insecure
 practice of cleartext passwords.
 
-%package -n	%{libname}-devel
+%package -n	%{develname}
 Summary:	Development files needed for compiling Kerberos 5 programs
 Group:		Development/Other
 Requires:	%{libname} >= %{version}
-Provides:	krb-devel = %{version}-%{release}
+Requires:	%{libgssapi_krb5} >= %{version}
+Requires:	%{libgssrpc} >= %{version}
+Requires:	%{libnamesupport} >= %{version}
+Requires:	%{libkadm5clnt_mit} >= %{version}
+Requires:	%{libkadm5srv_mit} >= %{version}
+Requires:	%{libkdb5} >= %{version}
+%if !%{bootstrap}
+Requires:	%{libkdb_ldap} >= %{version}
+%endif
 Provides:	krb5-devel = %{version}-%{release}
-Provides:	libkrb-devel
-Obsoletes:	krb-devel
-Obsoletes:	krb5-devel
-Obsoletes:	libkrb51-devel
+Obsoletes:	%{_lib}krb53-devel
 Requires:	rpm-build
 
-%description -n	%{libname}-devel
+%description -n	%{develname}
 Kerberos is a network authentication system.  The krb5-devel package
 contains the header files and libraries needed for compiling Kerberos
 5 programs. If you want to develop Kerberos-aware programs, you'll
 need to install this package.
 
 %package -n	%{libname}
-Summary:	The shared libraries used by Kerberos 5
+Summary:	The shared library used by Kerberos 5
 Group:		System/Libraries
-Provides:	krb5-libs = %{version}-%{release}
-Obsoletes:	krb5-libs
-Obsoletes:	libkrb51
-# we need the conf file, and better make sure it's a recent version
-# for example, previous MIT kerberos versions didn't have ldap support,
-# and this is specified in the conf file
-Requires:       %{name} >= %{version}-%{release}
+Obsoletes:	%{_lib}krb53
+%rename	krb5-libs
 
 %description -n	%{libname}
-Kerberos is a network authentication system.  The krb5-libs package
-contains the shared libraries needed by Kerberos 5.  If you're using
-Kerberos, you'll need to install this package.
+This package contains the shared library for %{name}.
+
+%package -n	%{libgssapi_krb5}
+Summary:	The shared library used by Kerberos 5 - gssapi_krb5
+Group:		System/Libraries
+Conflicts:	%{_lib}krb53 < 1.9.2-3
+
+%description -n	%{libgssapi_krb5}
+This package contains the shared library gssrpc for %{name}.
+
+%package -n	%{libgssrpc}
+Summary:	The shared library used by Kerberos 5 - gssrpc
+Group:		System/Libraries
+Conflicts:	%{_lib}krb53 < 1.9.2-3
+
+%description -n	%{libgssrpc}
+This package contains the shared library gssrpc for %{name}.
+
+%package -n	%{libk5crypto}
+Summary:	The shared library used by Kerberos 5 - k5crypto
+Group:		System/Libraries
+Conflicts:	%{_lib}krb53 < 1.9.2-3
+
+%description -n	%{libk5crypto}
+This package contains the shared library k5crypto for %{name}.
+
+%package -n	%{libnamesupport}
+Summary:	The shared library used by Kerberos 5 - krb5support
+Group:		System/Libraries
+Conflicts:	%{_lib}krb53 < 1.9.2-3
+
+%description -n	%{libnamesupport}
+This package contains the shared library krb5support for %{name}.
+
+%package -n	%{libkadm5clnt_mit}
+Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit
+Group:		System/Libraries
+Requires:	%{name} = %{version}-%{release}
+Conflicts:	%{_lib}krb53 < 1.9.2-3
+
+%description -n	%{libkadm5clnt_mit}
+This package contains the shared library kadm5clnt_mit for %{name}.
+
+%package -n	%{libkadm5srv_mit}
+Summary:	The shared library used by Kerberos 5 - kadm5srv_mit
+Group:		System/Libraries
+Requires:	%{name} = %{version}-%{release}
+Conflicts:	%{_lib}krb53 < 1.9.2-3
+
+%description -n	%{libkadm5srv_mit}
+This package contains the shared library kadm5srv_mit for %{name}.
+
+%package -n	%{libkdb5}
+Summary:	The shared library used by Kerberos 5 - kdb5
+Group:		System/Libraries
+Conflicts:	%{_lib}krb53 < 1.9.2-3
+
+%description -n	%{libkdb5}
+This package contains the shared library kdb5 for %{name}.
+
+%package -n	%{libkdb_ldap}
+Summary:	The shared library used by Kerberos 5 - kdb_ldap
+Group:		System/Libraries
+Conflicts:	krb5-server-ldap < 1.9.2-3
+
+%description -n	%{libkdb_ldap}
+This package contains the shared library kdb_ldap for %{name}.
 
 %package	server
 Summary:	The server programs for Kerberos 5
 Group:		System/Servers
-Requires:	%{libname} >= %{version}-%{release}
-Requires(post):	rpm-helper
-Requires(preun): rpm-helper
-Requires(post): info-install
-Requires(preun): info-install
+Requires(post,preun): rpm-helper
+Requires(post,preun): info-install
 # systemd-sysv was added in systemd 37-2
 Requires(post): systemd-sysv
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
+Requires(post,preun,postun): systemd-units
 # we drop files in its directory, but we don't want to own that directory
 Requires:	logrotate
 # mktemp is used by krb5-send-pr
@@ -151,7 +232,6 @@ realm, you need to install this package.
 %package	workstation
 Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
-Requires:	%{libname} >= %{version}-%{release}
 Requires(post): info-install
 Requires(preun): info-install
 Requires(post):	rpm-helper
@@ -167,7 +247,6 @@ on every workstation.
 %package	pkinit-openssl
 Summary:	The PKINIT module for Kerberos 5
 Group:		System/Libraries
-Requires:	%{libname} >= %{version}-%{release}
 
 %description	pkinit-openssl
 Kerberos is a network authentication system. The krb5-pkinit-openssl
@@ -176,23 +255,8 @@ to obtain initial credentials from a KDC using a private key and a
 certificate. 
 
 %prep
-
 %setup -q -a 23
-%patch60 -p1 -b .pam
-%patch61 -p1 -b .manpaths
-%patch5 -p1 -b .ksu-access
-%patch12 -p1 -b .ktany
-%patch23 -p1 -b .dns
-%patch30 -p1 -b .send-pr-tempfile
-%patch39 -p1 -b .api
-%patch53 -p1 -b .nodeplibs
-%patch56 -p1 -b .doublelog
-%patch59 -p1 -b .kpasswd_tcp
-%patch71 -p1 -b .dirsrv-accountlock
-%patch74 -p1 -b .buildconf
-%patch75 -p1
-%patch76 -p1
-%patch78 -p1 -b .CVE-2011-1530
+%apply_patches
 
 gzip doc/*.ps
 
@@ -236,7 +300,6 @@ popd
 
 %build
 %serverbuild
-
 # it does not work with -fPIE and someone added that to the serverbuild macro...
 CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
 CXXFLAGS=`echo $CXXFLAGS|sed -e 's|-fPIE||g'`
@@ -262,7 +325,7 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
     --with-system-ss \
     --disable-static \
     --disable-rpath \
-%if !%bootstrap
+%if !%{bootstrap}
     --with-ldap \
 %endif
     --with-pam
@@ -344,7 +407,7 @@ install -d %{buildroot}%{_libdir}/krb5/plugins/authdata
 # The rest of the binaries, headers, libraries, and docs.
 make -C src \
     DESTDIR=%{buildroot} \
-    EXAMPLEDIR=%{_docdir}/%{libname}-devel/examples\
+    EXAMPLEDIR=%{_docdir}/%{develname}/examples\
     install
 
 # logdir
@@ -425,6 +488,12 @@ fi
 %dir %{_sysconfdir}/kerberos
 %dir %{_libdir}/krb5
 %dir %{_libdir}/krb5/plugins
+%dir %{_libdir}/krb5/plugins/kdb
+%dir %{_libdir}/krb5/plugins/preauth
+%dir %{_libdir}/krb5/plugins/authdata
+#{_libdir}/krb5/plugins/*
+%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
+%{_libdir}/krb5/plugins/kdb/db2.so 
 %{_mandir}/man1/kerberos.1*
 %{_mandir}/man5/.k5login.5*
 
@@ -435,7 +504,6 @@ fi
 %attr(0755,root,root) %doc src/config-files/convert-config-files
 %{_infodir}/krb5-user.info*
 %{_mandir}/man5/krb5.conf.5*
-
 %{_bindir}/kdestroy
 %{_mandir}/man1/kdestroy.1*
 %{_bindir}/kinit
@@ -444,7 +512,6 @@ fi
 %{_mandir}/man1/klist.1*
 %{_bindir}/kpasswd
 %{_mandir}/man1/kpasswd.1*
-
 %{_bindir}/kvno
 %{_mandir}/man1/kvno.1*
 %{_bindir}/kadmin
@@ -453,17 +520,19 @@ fi
 %{_mandir}/man1/k5srvutil.1*
 %{_bindir}/ktutil
 %{_mandir}/man1/ktutil.1*
-
 %attr(4755,root,root) %{_bindir}/ksu
 %{_mandir}/man1/ksu.1*
 %config(noreplace) /etc/pam.d/ksu
-
 # Problem-reporting tool
 %{_datadir}/gnats
 %{_sbindir}/krb5-send-pr
 %{_mandir}/man1/krb5-send-pr.1*
 
 %files server
+%doc doc/admin*.ps.gz
+%doc doc/install*.ps.gz
+%doc doc/krb5-admin.html
+%doc doc/krb5-install.html
 %{_unitdir}/krb5kdc.service
 %{_unitdir}/kadmin.service
 %{_unitdir}/kprop.service
@@ -474,10 +543,6 @@ fi
 %config(noreplace) %{_sysconfdir}/portreserve/krb5_prop
 %config(noreplace) %{_sysconfdir}/logrotate.d/krb5kdc
 %config(noreplace) %{_sysconfdir}/logrotate.d/kadmind
-%doc doc/admin*.ps.gz
-%doc doc/install*.ps.gz
-%doc doc/krb5-admin.html
-%doc doc/krb5-install.html
 %{_infodir}/krb5-admin.info*
 %{_infodir}/krb5-install.info*
 %dir /var/log/kerberos
@@ -491,10 +556,6 @@ fi
 %{_mandir}/man8/kadmind.8*
 %{_sbindir}/kdb5_util
 %{_mandir}/man8/kdb5_util.8*
-%if !%bootstrap
-%{_sbindir}/kdb5_ldap_util
-%{_mandir}/man8/kdb5_ldap_util.8*
-%endif
 %{_sbindir}/kprop
 %{_mandir}/man8/kprop.8*
 %{_sbindir}/kpropd
@@ -509,28 +570,36 @@ fi
 %{_sbindir}/sserver
 %{_mandir}/man8/sserver.8*
 
-%dir %{_libdir}/krb5
-%dir %{_libdir}/krb5/plugins
-%dir %{_libdir}/krb5/plugins/kdb
-%dir %{_libdir}/krb5/plugins/preauth
-%dir %{_libdir}/krb5/plugins/authdata
+%files -n %{libgssapi_krb5}
+%{_libdir}/libgssapi_krb5.so.%{gssapi_major}*
+
+%files -n %{libgssrpc}
+%{_libdir}/libgssrpc.so.%{gssrpc_major}*
+
+%files -n %{libk5crypto}
+%{_libdir}/libk5crypto.so.%{major}*
 
 %files -n %{libname}
-%{_libdir}/libgssapi_krb5.so.*
-%{_libdir}/libgssrpc.so.*
-%{_libdir}/libk5crypto.so.*
-%{_libdir}/libkrb5.so.*
-%{_libdir}/libkrb5support.so.*
-%{_libdir}/libkadm5clnt_mit.so.*
-%{_libdir}/libkadm5srv_mit.so.*
-%{_libdir}/libkdb5.so.*
-%dir %{_libdir}/krb5
-%dir %{_libdir}/krb5/plugins
-%dir %{_libdir}/krb5/plugins/*
-%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
-%{_libdir}/krb5/plugins/kdb/db2.so 
+%{_libdir}/libkrb5.so.%{major}*
 
-%files -n %{libname}-devel
+%files -n %{libnamesupport}
+%{_libdir}/libkrb5support.so.%{support_major}*
+
+%files -n %{libkadm5clnt_mit}
+%{_libdir}/libkadm5clnt_mit.so.%{mit_major}*
+
+%files -n %{libkadm5srv_mit}
+%{_libdir}/libkadm5srv_mit.so.%{mit_major}*
+
+%files -n %{libkdb5}
+%{_libdir}/libkdb5.so.%{kdb5_major}*
+
+%if !%{bootstrap}
+%files -n %{libkdb_ldap}
+%{_libdir}/libkdb_ldap.so.%{ldap_major}*
+%endif
+
+%files -n %{develname}
 %doc doc/api
 %doc doc/implement
 %doc doc/kadm5
@@ -559,6 +628,9 @@ fi
 %{_libdir}/libkdb5.so
 %{_libdir}/libkrb5.so
 %{_libdir}/libkrb5support.so
+%if !%{bootstrap}
+%{_libdir}/libkdb_ldap.so
+%endif
 %{_mandir}/man1/krb5-config.1*
 
 # Protocol test clients
@@ -571,19 +643,14 @@ fi
 %{_sbindir}/uuserver
 
 %files pkinit-openssl
-%dir %{_libdir}/krb5
-%dir %{_libdir}/krb5/plugins
-%dir %{_libdir}/krb5/plugins/preauth
 %{_libdir}/krb5/plugins/preauth/pkinit.so
 
 %files server-ldap
 %doc src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif
 %doc src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema
-%dir %{_libdir}/krb5
-%dir %{_libdir}/krb5/plugins
-%dir %{_libdir}/krb5/plugins/kdb
-%if !%bootstrap
+%if !%{bootstrap}
 %{_libdir}/krb5/plugins/kdb/kldap.so
-%{_libdir}/libkdb_ldap.so
-%{_libdir}/libkdb_ldap.so.*
+%{_sbindir}/kdb5_ldap_util
+%{_mandir}/man8/kdb5_ldap_util.8*
 %endif
+
