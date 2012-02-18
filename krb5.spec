@@ -9,7 +9,7 @@
 %define	support_major 0
 %define	libnamesupport	%mklibname %{name}support %{support_major}
 
-%define	mit_major 0
+%define	mit_major 8
 %define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
 %define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
 
@@ -19,7 +19,7 @@
 %define	gssrpc_major 4
 %define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
 
-%define	kdb5_major 4
+%define	kdb5_major 5
 %define	libkdb5	%mklibname kdb5_ %{kdb5_major}
 
 %define	ldap_major 1
@@ -76,8 +76,8 @@ Patch76:	krb5-1.9-ksu-path.patch
 Patch78:	http://web.mit.edu/kerberos/advisories/2011-007-patch.txt
 BuildRequires:	libtool
 BuildRequires:	bison
-BuildRequires:	e2fsprogs-devel
 BuildRequires:	flex
+BuildRequires:	pkgconfig(com_err)
 BuildRequires:	keyutils-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	openssl-devel
