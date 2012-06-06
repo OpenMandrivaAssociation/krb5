@@ -1,4 +1,6 @@
 %define bootstrap 0
+%define oname mit-krb5
+
 %{?_without_bootstrap: %global bootstrap 0}
 %{?_with_bootstrap: %global bootstrap 1}
 
@@ -19,7 +21,7 @@
 %define	gssrpc_major 4
 %define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
 
-%define	kdb5_major 5
+%define	kdb5_major 6
 %define	libkdb5	%mklibname kdb5_ %{kdb5_major}
 
 %define	ldap_major 1
@@ -32,48 +34,58 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.9.2
-Release:	3
+Version:	1.10.2
+Release:	1
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
 # from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
-Source0:	%{name}-%{version}.tar.gz
-Source1:	%{name}-%{version}.tar.gz.asc
-Source2:	kprop.service
-Source4:	kadmin.service
-Source5:	krb5kdc.service
-Source6:	krb5.conf
-Source10:	kdc.conf
-Source11:	kadm5.acl
-Source19:	krb5kdc.sysconfig
-Source20:	kadmin.sysconfig
-# The same source files we "check", generated with "krb5-tex-pdf.sh create" and tarred up.
-Source23:	krb5-%{version}-pdf.tar.bz2
-Source24:	krb5-tex-pdf.sh
-Source25:	krb5-1.8-manpaths.txt
-Source29:	ksu.pamd
-Source30:	kerberos-iv.portreserve
-Source31:	kerberos-adm.portreserve
-Source32:	krb5_prop.portreserve
-Source33:	krb5kdc.logrotate
-Source34:	kadmind.logrotate
-# stolen from fedora
-Patch5:		krb5-1.8-ksu-access.patch
-Patch12:	krb5-1.7-ktany.patch
-Patch23:	krb5-1.3.1-dns.patch
-Patch30:	krb5-1.3.4-send-pr-tempfile.patch
-Patch39:	krb5-1.8-api.patch
-Patch53:	krb5-1.7-nodeplibs.patch
-Patch56:	krb5-1.7-doublelog.patch
-Patch59:	krb5-1.8-kpasswd_tcp.patch
-Patch60:	krb5-1.8-pam.patch
-Patch61:	krb5-1.9-manpaths.patch
-Patch71:	krb5-1.9-dirsrv-accountlock.patch
-Patch74:	krb5-1.9-buildconf.patch
-Patch75:	krb5-1.9-kprop-mktemp.patch
-Patch76:	krb5-1.9-ksu-path.patch
-Patch78:	http://web.mit.edu/kerberos/advisories/2011-007-patch.txt
+Source0: krb5-%{version}.tar.gz
+Source1: krb5-%{version}.tar.gz.asc
+Source2: kprop.service
+Source4: kadmin.service
+Source5: krb5kdc.service
+Source6: krb5.conf
+Source10: kdc.conf
+Source11: kadm5.acl
+Source19: krb5kdc.sysconfig
+Source20: kadmin.sysconfig
+# The same source files we "check", generated with "krb5-tex-pdf.sh create"
+# and tarred up.
+Source23: krb5-%{version}-pdf.tar.xz
+Source24: krb5-tex-pdf.sh
+Source25: krb5-1.10-manpaths.txt
+Source29: ksu.pamd
+Source30: kerberos-iv.portreserve
+Source31: kerberos-adm.portreserve
+Source32: krb5_prop.portreserve
+Source33: krb5kdc.logrotate
+Source34: kadmind.logrotate
+Source35: kdb_check_weak.c
+
+Patch5: krb5-1.10-ksu-access.patch
+Patch6: krb5-1.10-ksu-path.patch
+Patch12: krb5-1.7-ktany.patch
+Patch16: krb5-1.10-buildconf.patch
+Patch23: krb5-1.3.1-dns.patch
+Patch29: krb5-1.10-kprop-mktemp.patch
+Patch30: krb5-1.3.4-send-pr-tempfile.patch
+Patch39: krb5-1.8-api.patch
+Patch56: krb5-1.10-doublelog.patch
+Patch59: krb5-1.10-kpasswd_tcp.patch
+Patch60: krb5-1.10.2-pam.patch
+Patch61: krb5-1.10.2-manpaths.patch
+Patch63: krb5-1.10.2-selinux-label.patch
+Patch71: krb5-1.9-dirsrv-accountlock.patch
+Patch75: krb5-pkinit-debug.patch
+Patch86: krb5-1.9-debuginfo.patch
+Patch100: krb5-trunk-7046.patch
+Patch101: krb5-trunk-7047.patch
+Patch102: krb5-trunk-7048.patch
+Patch103: krb5-1.10-gcc47.patch
+Patch105: krb5-kvno-230379.patch
+Patch106: krb5-1.10.2-keytab-etype.patch
+
 BuildRequires:	libtool
 BuildRequires:	bison
 BuildRequires:	flex
@@ -255,8 +267,37 @@ to obtain initial credentials from a KDC using a private key and a
 certificate. 
 
 %prep
-%setup -q -a 23
-%apply_patches
+%setup -q -a 23 -n krb5-%{version}
+ln -s NOTICE LICENSE
+
+%patch60 -p1 -b .pam
+
+%patch61 -p1 -b .manpaths
+
+%patch63 -p1 -b .selinux-label
+
+%patch5  -p1 -b .ksu-access
+%patch6  -p1 -b .ksu-path
+%patch12 -p1 -b .ktany
+%patch16 -p1 -b .buildconf
+%patch23 -p1 -b .dns
+%patch29 -p1 -b .kprop-mktemp
+%patch30 -p1 -b .send-pr-tempfile
+%patch39 -p1 -b .api
+%patch56 -p1 -b .doublelog
+%patch59 -p1 -b .kpasswd_tcp
+%patch71 -p1 -b .dirsrv-accountlock
+#%patch75 -p1 -b .pkinit-debug
+%patch86 -p0 -b .debuginfo
+%patch100 -p1 -b .7046
+%patch101 -p1 -b .7047
+%patch102 -p1 -b .7048
+%patch103 -p0 -b .gcc47
+%patch105 -p1 -b .kvno
+%patch106 -p1 -b .keytab-etype
+rm src/lib/krb5/krb/deltat.c
+
+
 
 gzip doc/*.ps
 
@@ -416,6 +457,7 @@ install -d %{buildroot}/var/log/kerberos
 # clear the LDFLAGS
 perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 
+
 # multiarch policy
 %multiarch_binaries %{buildroot}%{_bindir}/krb5-config
 
@@ -482,6 +524,9 @@ fi
 /bin/systemctl try-restart kadmin.service >/dev/null 2>&1 || :
 /bin/systemctl try-restart kprop.service >/dev/null 2>&1 || :
 
+
+
+
 %files
 %doc README
 %config(noreplace) %{_sysconfdir}/krb5.conf
@@ -492,10 +537,10 @@ fi
 %dir %{_libdir}/krb5/plugins/preauth
 %dir %{_libdir}/krb5/plugins/authdata
 #{_libdir}/krb5/plugins/*
-%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
+#%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
 %{_mandir}/man1/kerberos.1*
-%{_mandir}/man5/.k5login.5*
+%{_datadir}/locale/en_US/LC_MESSAGES/mit-krb5.mo
 
 %files workstation
 %doc doc/user*.ps.gz src/config-files/services.append
@@ -505,8 +550,12 @@ fi
 %{_infodir}/krb5-user.info*
 %{_mandir}/man5/krb5.conf.5*
 %{_bindir}/kdestroy
+%{_bindir}/kswitch
 %{_mandir}/man1/kdestroy.1*
+%{_mandir}/man1/kswitch.1*
 %{_bindir}/kinit
+%{_mandir}/man5/.k5identity.5*
+%{_mandir}/man5/.k5login.5*
 %{_mandir}/man1/kinit.1*
 %{_bindir}/klist
 %{_mandir}/man1/klist.1*
@@ -520,6 +569,8 @@ fi
 %{_mandir}/man1/k5srvutil.1*
 %{_bindir}/ktutil
 %{_mandir}/man1/ktutil.1*
+%{_mandir}/man5/k5identity.5.*
+%{_mandir}/man5/k5login.5.*
 %attr(4755,root,root) %{_bindir}/ksu
 %{_mandir}/man1/ksu.1*
 %config(noreplace) /etc/pam.d/ksu
