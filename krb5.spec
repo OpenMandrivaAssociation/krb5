@@ -87,6 +87,7 @@ Patch105: krb5-kvno-230379.patch
 Patch106: krb5-1.10.2-keytab-etype.patch
 
 BuildRequires:	libtool
+BuildRequires:	selinux-devel
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	pkgconfig(com_err)
