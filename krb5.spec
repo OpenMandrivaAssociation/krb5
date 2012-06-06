@@ -27,6 +27,11 @@
 %define	ldap_major 1
 %define	libkdb_ldap	%mklibname kdb_ldap %{ldap_major}
 
+
+%define	verto_major 0
+%define	libverto %mklibname verto-kv5ev %{verto_major}
+
+
 %define develname	%mklibname -d %{name}
 # enable checking after compile
 %define enable_check 0
@@ -208,6 +213,14 @@ Conflicts:	krb5-server-ldap < 1.9.2-3
 %description -n	%{libkdb_ldap}
 This package contains the shared library kdb_ldap for %{name}.
 
+%package -n	%{libverto}
+Summary:	The shared library libverto
+Group:		System/Libraries
+
+%description -n	%{libverto}
+This package contains the shared library libverto for %{name}.
+
+
 %package	server
 Summary:	The server programs for Kerberos 5
 Group:		System/Servers
@@ -359,9 +372,9 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
     CPPFLAGS="$CPPFLAGS" \
     --enable-shared \
     --localstatedir=%{_sysconfdir}/kerberos \
-    --without-krb4 \
     --enable-dns-for-realm \
     --enable-pkinit \
+    --with-system-verto \
     --without-tcl \
     --with-system-et \
     --with-system-ss \
@@ -646,6 +659,9 @@ fi
 %files -n %{libkdb5}
 %{_libdir}/libkdb5.so.%{kdb5_major}*
 
+%files -n %{libverto}
+%{_libdir}/libverto-k5ev.so.%{verto_major}*
+
 %if !%{bootstrap}
 %files -n %{libkdb_ldap}
 %{_libdir}/libkdb_ldap.so.%{ldap_major}*
@@ -679,6 +695,7 @@ fi
 %{_libdir}/libkadm5srv_mit.so
 %{_libdir}/libkdb5.so
 %{_libdir}/libkrb5.so
+%{_libdir}/libverto.so
 %{_libdir}/libkrb5support.so
 %if !%{bootstrap}
 %{_libdir}/libkdb_ldap.so
