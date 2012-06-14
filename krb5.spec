@@ -40,56 +40,56 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.10.2
-Release:	1
+Release:	2
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
 # from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
-Source0: krb5-%{version}.tar.gz
-Source1: krb5-%{version}.tar.gz.asc
-Source2: kprop.service
-Source4: kadmin.service
-Source5: krb5kdc.service
-Source6: krb5.conf
-Source10: kdc.conf
-Source11: kadm5.acl
-Source19: krb5kdc.sysconfig
-Source20: kadmin.sysconfig
+Source0:	krb5-%{version}.tar.gz
+Source1:	krb5-%{version}.tar.gz.asc
+Source2:	kprop.service
+Source4:	kadmin.service
+Source5:	krb5kdc.service
+Source6:	krb5.conf
+Source10:	kdc.conf
+Source11:	kadm5.acl
+Source19:	krb5kdc.sysconfig
+Source20:	kadmin.sysconfig
 # The same source files we "check", generated with "krb5-tex-pdf.sh create"
 # and tarred up.
-Source23: krb5-%{version}-pdf.tar.xz
-Source24: krb5-tex-pdf.sh
-Source25: krb5-1.10-manpaths.txt
-Source29: ksu.pamd
-Source30: kerberos-iv.portreserve
-Source31: kerberos-adm.portreserve
-Source32: krb5_prop.portreserve
-Source33: krb5kdc.logrotate
-Source34: kadmind.logrotate
-Source35: kdb_check_weak.c
+Source23:	krb5-%{version}-pdf.tar.xz
+Source24:	krb5-tex-pdf.sh
+Source25:	krb5-1.10-manpaths.txt
+Source29:	ksu.pamd
+Source30:	kerberos-iv.portreserve
+Source31:	kerberos-adm.portreserve
+Source32:	krb5_prop.portreserve
+Source33:	krb5kdc.logrotate
+Source34:	kadmind.logrotate
+Source35:	kdb_check_weak.c
 
-Patch5: krb5-1.10-ksu-access.patch
-Patch6: krb5-1.10-ksu-path.patch
-Patch12: krb5-1.7-ktany.patch
-Patch16: krb5-1.10-buildconf.patch
-Patch23: krb5-1.3.1-dns.patch
-Patch29: krb5-1.10-kprop-mktemp.patch
-Patch30: krb5-1.3.4-send-pr-tempfile.patch
-Patch39: krb5-1.8-api.patch
-Patch56: krb5-1.10-doublelog.patch
-Patch59: krb5-1.10-kpasswd_tcp.patch
-Patch60: krb5-1.10.2-pam.patch
-Patch61: krb5-1.10.2-manpaths.patch
-Patch63: krb5-1.10.2-selinux-label.patch
-Patch71: krb5-1.9-dirsrv-accountlock.patch
-Patch75: krb5-pkinit-debug.patch
-Patch86: krb5-1.9-debuginfo.patch
-Patch100: krb5-trunk-7046.patch
-Patch101: krb5-trunk-7047.patch
-Patch102: krb5-trunk-7048.patch
-Patch103: krb5-1.10-gcc47.patch
-Patch105: krb5-kvno-230379.patch
-Patch106: krb5-1.10.2-keytab-etype.patch
+Patch5:		krb5-1.10-ksu-access.patch
+Patch6:		krb5-1.10-ksu-path.patch
+Patch12:	krb5-1.7-ktany.patch
+Patch16:	krb5-1.10-buildconf.patch
+Patch23:	krb5-1.3.1-dns.patch
+Patch29:	krb5-1.10-kprop-mktemp.patch
+Patch30:	krb5-1.3.4-send-pr-tempfile.patch
+Patch39:	krb5-1.8-api.patch
+Patch56:	krb5-1.10-doublelog.patch
+Patch59:	krb5-1.10-kpasswd_tcp.patch
+Patch60:	krb5-1.10.2-pam.patch
+Patch61:	krb5-1.10.2-manpaths.patch
+Patch63:	krb5-1.10.2-selinux-label.patch
+Patch71:	krb5-1.9-dirsrv-accountlock.patch
+Patch75:	krb5-pkinit-debug.patch
+Patch86:	krb5-1.9-debuginfo.patch
+Patch100:	krb5-trunk-7046.patch
+Patch101:	krb5-trunk-7047.patch
+Patch102:	krb5-trunk-7048.patch
+Patch103:	krb5-1.10-gcc47.patch
+Patch105:	krb5-kvno-230379.patch
+Patch106:	krb5-1.10.2-keytab-etype.patch
 
 BuildRequires:	libtool
 BuildRequires:	pkgconfig(libverto)
@@ -226,7 +226,6 @@ This package contains the shared library libverto for %{name}.
 Summary:	The server programs for Kerberos 5
 Group:		System/Servers
 Requires(post,preun): rpm-helper
-Requires(post,preun): info-install
 # systemd-sysv was added in systemd 37-2
 Requires(post): systemd-sysv
 Requires(post,preun,postun): systemd-units
@@ -259,11 +258,9 @@ realm, you need to install this package.
 %package	workstation
 Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
-Requires(post): info-install
-Requires(preun): info-install
 Requires(post):	rpm-helper
 Requires(preun):rpm-helper
-Provides:       kerberos-workstation
+Provides:	kerberos-workstation
 
 %description	workstation
 Kerberos is a network authentication system.  The krb5-workstation
@@ -489,8 +486,6 @@ if [ $1 -eq 1 ] ; then
     # Initial installation 
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
-%_install_info krb5-admin.info
-%_install_info krb5-install.info
 exit 0
 
 %preun server
@@ -502,8 +497,6 @@ if [ "$1" -eq "0" ] ; then
     /bin/systemctl stop kadmin.service > /dev/null 2>&1 || :
     /bin/systemctl stop kprop.service > /dev/null 2>&1 || :
 fi
-%_remove_install_info krb5-admin.info
-%_remove_install_info krb5-install.info
 exit 0
 
 %postun server
@@ -513,12 +506,6 @@ if [ $1 -ge 1 ] ; then
     /bin/systemctl try-restart kadmin.service >/dev/null 2>&1 || :
     /bin/systemctl try-restart kprop.service >/dev/null 2>&1 || :
 fi
-
-%post workstation
-%_install_info krb5-user.info
-
-%preun workstation
-%_remove_install_info krb5-user.info
 
 %triggerun server -- krb5-server < 1.9.2-1
 # Save the current service runlevel info
@@ -538,8 +525,6 @@ fi
 /bin/systemctl try-restart krb5kdc.service >/dev/null 2>&1 || :
 /bin/systemctl try-restart kadmin.service >/dev/null 2>&1 || :
 /bin/systemctl try-restart kprop.service >/dev/null 2>&1 || :
-
-
 
 
 %files
