@@ -27,11 +27,6 @@
 %define	ldap_major 1
 %define	libkdb_ldap	%mklibname kdb_ldap %{ldap_major}
 
-
-%define	verto_major 0
-%define	libverto %mklibname verto-kv5ev %{verto_major}
-
-
 %define develname	%mklibname -d %{name}
 # enable checking after compile
 %define enable_check 0
@@ -40,7 +35,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.10.2
-Release:	2
+Release:	3
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -214,20 +209,10 @@ Conflicts:	krb5-server-ldap < 1.9.2-3
 %description -n	%{libkdb_ldap}
 This package contains the shared library kdb_ldap for %{name}.
 
-%package -n	%{libverto}
-Summary:	The shared library libverto
-Group:		System/Libraries
-
-%description -n	%{libverto}
-This package contains the shared library libverto for %{name}.
-
-
 %package	server
 Summary:	The server programs for Kerberos 5
 Group:		System/Servers
 Requires(post,preun): rpm-helper
-# systemd-sysv was added in systemd 37-2
-Requires(post): systemd-sysv
 Requires(post,preun,postun): systemd-units
 # we drop files in its directory, but we don't want to own that directory
 Requires:	logrotate
@@ -508,16 +493,6 @@ if [ $1 -ge 1 ] ; then
 fi
 
 %triggerun server -- krb5-server < 1.9.2-1
-# Save the current service runlevel info
-# User must manually run 
-#  systemd-sysv-convert --apply krb5kdc
-#  systemd-sysv-convert --apply kadmin
-#  systemd-sysv-convert --apply kprop
-# to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save krb5kdc >/dev/null 2>&1 ||:
-/usr/bin/systemd-sysv-convert --save kadmin >/dev/null 2>&1 ||:
-/usr/bin/systemd-sysv-convert --save kprop >/dev/null 2>&1 ||:
-
 # Run these because the SysV package being removed won't do them
 /sbin/chkconfig --del krb5kdc >/dev/null 2>&1 || :
 /sbin/chkconfig --del kadmin >/dev/null 2>&1 || :
@@ -645,9 +620,6 @@ fi
 %files -n %{libkdb5}
 %{_libdir}/libkdb5.so.%{kdb5_major}*
 
-%files -n %{libverto}
-%{_libdir}/libverto-k5ev.so.%{verto_major}*
-
 %if !%{bootstrap}
 %files -n %{libkdb_ldap}
 %{_libdir}/libkdb_ldap.so.%{ldap_major}*
@@ -681,7 +653,6 @@ fi
 %{_libdir}/libkadm5srv_mit.so
 %{_libdir}/libkdb5.so
 %{_libdir}/libkrb5.so
-%{_libdir}/libverto.so
 %{_libdir}/libkrb5support.so
 %if !%{bootstrap}
 %{_libdir}/libkdb_ldap.so
