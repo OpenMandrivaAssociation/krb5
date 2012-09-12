@@ -32,6 +32,8 @@
 %define enable_check 0
 %{?_with_check: %global %enable_check 1}
 
+%bcond_with	selinux
+
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.10.2
@@ -88,7 +90,9 @@ Patch106:	krb5-1.10.2-keytab-etype.patch
 
 BuildRequires:	libtool
 BuildRequires:	pkgconfig(libverto)
+%if %{with selinux}
 BuildRequires:	selinux-devel
+%endif
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	pkgconfig(com_err)
@@ -271,7 +275,9 @@ ln -s NOTICE LICENSE
 
 %patch61 -p1 -b .manpaths
 
+%if %{with selinux}
 %patch63 -p1 -b .selinux-label
+%endif
 
 %patch5  -p1 -b .ksu-access
 %patch6  -p1 -b .ksu-path
