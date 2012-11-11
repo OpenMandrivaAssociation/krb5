@@ -1,0 +1,21 @@
+sources:
+  "kadm5.acl:"	495fe05a09151b122d64b8d9b860903444d0dfbd
+  "kadmind.logrotate:"	9930402e25fff99b51e9d76386105ae20d145dc7
+  "kadmin.service:"	473e29400710e611d546a1d51f565bc06d813dba
+  "kadmin.sysconfig:"	2d3217518a268a4e8f7d106559a6001c31c6b782
+  "kdb_check_weak.c:"	fa8bd6e83fa519600de84175872e0c22e276db48
+  "kdc.conf:"	b2203d0d9f9cfc448640f14771b7c977e8768316
+  "kerberos-adm.portreserve:"	6aae81e57f19ece2b4219f763a47b46d08bdfa6f
+  "kerberos-iv.portreserve:"	301758f16bc00801f18249ba8b706951242fc42f
+  "kprop.service:"	18d283eec7078021ed143a125e6d977a694986eb
+  "krb5-1.10.2-pdf.tar.xz:"	6d76b05d0e2e998ee88c3c1278253a424e8b199d
+  "krb5-1.10.2.tar.gz:"	f5d2d1edca1179e73089d06455a28ed42edd45db
+  "krb5-1.10.2.tar.gz.asc:"	6388342b320d51430328412689c157928e20072d
+  "krb5-1.10-manpaths.txt:"	c3760de93112a3690485994825173cad4ea503f9
+  "krb5.conf:"	fe37cf5feb9de7ffd5a618e6f8883143cb1cad12
+  "krb5kdc.logrotate:"	e8590df976fae794ff7c1b840180607176f576e4
+  "krb5kdc.service:"	1194f698658fa0056cd4acbae814cc879636679c
+  "krb5kdc.sysconfig:"	68b4f2d8c70d0487eea4d2689e95fbcaf1dcf294
+  "krb5_prop.portreserve:"	6966a9685a6c4b5480d63dad1ccaccd7e9baea37
+  "krb5-tex-pdf.sh:"	184db3bca24e28556f0613b8c02b9903784fa2f9
+  "ksu.pamd:"	76d4f17eb02bc721dfe6cb6e803ccd941dd2c605
