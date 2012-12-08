@@ -36,7 +36,7 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.10.2
+Version:	1.10.3
 Release:	4
 License:	MIT
 URL:		http://web.mit.edu/kerberos/www/
@@ -64,6 +64,7 @@ Source32:	krb5_prop.portreserve
 Source33:	krb5kdc.logrotate
 Source34:	kadmind.logrotate
 Source35:	kdb_check_weak.c
+Source40:	%{name}.rpmlintrc
 
 Patch5:		krb5-1.10-ksu-access.patch
 Patch6:		krb5-1.10-ksu-path.patch
@@ -101,7 +102,8 @@ BuildRequires:	ncurses-devel
 BuildRequires:	openssl-devel
 BuildRequires:	pam-devel
 BuildRequires:	systemd-units
-BuildRequires:	termcap-devel
+#termacap conflicts with ncurses-devel
+#BuildRequires:	termcap-devel
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
