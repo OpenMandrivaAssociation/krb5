@@ -88,6 +88,7 @@ Patch102:	krb5-trunk-7048.patch
 Patch103:	krb5-1.10-gcc47.patch
 Patch105:	krb5-kvno-230379.patch
 Patch106:	krb5-1.10.2-keytab-etype.patch
+Patch107:	krb5-aarch64.patch
 
 BuildRequires:	libtool
 BuildRequires:	pkgconfig(libverto)
@@ -300,6 +301,7 @@ ln -s NOTICE LICENSE
 %patch103 -p0 -b .gcc47
 %patch105 -p1 -b .kvno
 %patch106 -p1 -b .keytab-etype
+%patch107 -p1 -b .aarch64
 rm src/lib/krb5/krb/deltat.c
 
 
@@ -340,11 +342,11 @@ popd
 sed -i s,^attributetype:,attributetypes:,g \
     src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif 
 
+
+%build
 pushd src
     autoreconf -fi
 popd
-
-%build
 %serverbuild
 # it does not work with -fPIE and someone added that to the serverbuild macro...
 CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
