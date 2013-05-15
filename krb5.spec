@@ -1,4 +1,9 @@
+%bcond_with	crosscompile
+%if %{with crosscompile}
+%define bootstrap 1
+%else
 %define bootstrap 0
+%endif
 %define oname mit-krb5
 
 %{?_without_bootstrap: %global bootstrap 0}
@@ -347,6 +352,15 @@ sed -i s,^attributetype:,attributetypes:,g \
 pushd src
     autoreconf -fi
 popd
+%if %{with crosscompile}
+export krb5_cv_attr_constructor_destructor=yes
+export ac_cv_func_regcomp=yes
+export ac_cv_printf_positional=yes
+export ac_cv_file__etc_environment=no
+export ac_cv_file__etc_TIMEZONE=no
+sed -i "406d" src/include/k5-platform.h
+%endif
+
 %serverbuild
 # it does not work with -fPIE and someone added that to the serverbuild macro...
 CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
