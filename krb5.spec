@@ -44,7 +44,7 @@ Name:		krb5
 Version:	1.10.3
 Release:	4
 License:	MIT
-URL:		http://web.mit.edu/kerberos/www/
+Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
 # from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
 Source0:	krb5-%{version}.tar.gz
@@ -95,21 +95,19 @@ Patch105:	krb5-kvno-230379.patch
 Patch106:	krb5-1.10.2-keytab-etype.patch
 Patch107:	krb5-aarch64.patch
 
+BuildRequires:	bison
+BuildRequires:	flex
 BuildRequires:	libtool
-BuildRequires:	pkgconfig(libverto)
+BuildRequires:	systemd-units
+BuildRequires:	keyutils-devel
+BuildRequires:	pam-devel
 %if %{with selinux}
 BuildRequires:	selinux-devel
 %endif
-BuildRequires:	bison
-BuildRequires:	flex
 BuildRequires:	pkgconfig(com_err)
-BuildRequires:	keyutils-devel
-BuildRequires:	ncurses-devel
-BuildRequires:	openssl-devel
-BuildRequires:	pam-devel
-BuildRequires:	systemd-units
-#termacap conflicts with ncurses-devel
-#BuildRequires:	termcap-devel
+BuildRequires:	pkgconfig(libverto)
+BuildRequires:	pkgconfig(ncurses)
+BuildRequires:	pkgconfig(openssl)
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
@@ -374,25 +372,25 @@ CFLAGS="`echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC`"
 CPPFLAGS="`echo $DEFINES $INCLUDES`" 
 
 %configure2_5x \
-    CC="%{__cc}" \
-    CFLAGS="$CFLAGS" \
-    CPPFLAGS="$CPPFLAGS" \
-    --enable-shared \
-    --localstatedir=%{_sysconfdir}/kerberos \
-    --enable-dns-for-realm \
-    --enable-pkinit \
-    --with-system-verto \
-    --without-tcl \
-    --with-system-et \
-    --with-system-ss \
-    --disable-static \
-    --disable-rpath \
+	CC="%{__cc}" \
+	CFLAGS="$CFLAGS" \
+	CPPFLAGS="$CPPFLAGS" \
+	--enable-shared \
+	--localstatedir=%{_sysconfdir}/kerberos \
+	--enable-dns-for-realm \
+	--enable-pkinit \
+	--with-system-verto \
+	--without-tcl \
+	--with-system-et \
+	--with-system-ss \
+	--disable-static \
+	--disable-rpath \
 %if !%{bootstrap}
-    --with-ldap \
+	--with-ldap \
 %endif
-    --with-pam
+	--with-pam
 
-    #--with-netlib=-lresolv
+	#--with-netlib=-lresolv
 
 %make
 
@@ -402,8 +400,6 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
 # make check TMPDIR=%{_tmppath}
 
 %install
-rm -rf %{buildroot}
-
 # Info docs.
 install -d %{buildroot}%{_infodir}
 install -m 644 doc/*.info* %{buildroot}%{_infodir}
