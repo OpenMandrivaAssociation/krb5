@@ -90,7 +90,6 @@ Patch86:	krb5-1.9-debuginfo.patch
 Patch100:	krb5-trunk-7046.patch
 Patch101:	krb5-trunk-7047.patch
 Patch102:	krb5-trunk-7048.patch
-Patch103:	krb5-1.10-gcc47.patch
 Patch105:	krb5-kvno-230379.patch
 Patch106:	krb5-1.10.2-keytab-etype.patch
 Patch107:	krb5-aarch64.patch
@@ -301,7 +300,6 @@ ln -s NOTICE LICENSE
 %patch100 -p1 -b .7046
 %patch101 -p1 -b .7047
 %patch102 -p1 -b .7048
-%patch103 -p0 -b .gcc47
 %patch105 -p1 -b .kvno
 %patch106 -p1 -b .keytab-etype
 %patch107 -p1 -b .aarch64
