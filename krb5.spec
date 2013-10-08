@@ -41,8 +41,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.10.3
-Release:	4
+Version:	1.10.6
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -59,7 +59,7 @@ Source19:	krb5kdc.sysconfig
 Source20:	kadmin.sysconfig
 # The same source files we "check", generated with "krb5-tex-pdf.sh create"
 # and tarred up.
-Source23:	krb5-%{version}-pdf.tar.xz
+Source23:	krb5-1.10.3-pdf.tar.xz
 Source24:	krb5-tex-pdf.sh
 Source25:	krb5-1.10-manpaths.txt
 Source29:	ksu.pamd
