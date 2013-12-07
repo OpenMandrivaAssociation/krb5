@@ -41,8 +41,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.10.6
-Release:	5
+Version:	1.11.4
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
