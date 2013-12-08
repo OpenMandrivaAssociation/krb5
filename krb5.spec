@@ -26,7 +26,7 @@
 %define	gssrpc_major 4
 %define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
 
-%define	kdb5_major 6
+%define	kdb5_major 7
 %define	libkdb5	%mklibname kdb5_ %{kdb5_major}
 
 %define	ldap_major 1
@@ -504,7 +504,6 @@ fi
 #{_libdir}/krb5/plugins/*
 #%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
-%{_mandir}/man1/kerberos.1*
 %{_datadir}/locale/en_US/LC_MESSAGES/mit-krb5.mo
 
 %files workstation
@@ -578,6 +577,7 @@ fi
 %{_sbindir}/sim_server
 %{_bindir}/sclient
 %{_mandir}/man1/sclient.1*
+%{_mandir}/man1/krb5-config.1*
 %{_sbindir}/sserver
 %{_mandir}/man8/sserver.8*
 
