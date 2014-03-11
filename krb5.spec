@@ -16,7 +16,10 @@
 %define	support_major 0
 %define	libnamesupport	%mklibname %{name}support %{support_major}
 
-%define	mit_major 8
+%define rad_major 0
+%define libnamerad %mklibname krad %{rad_major}
+
+%define	mit_major 9
 %define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
 %define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
 
@@ -26,7 +29,7 @@
 %define	gssrpc_major 4
 %define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
 
-%define	kdb5_major 6
+%define	kdb5_major 7
 %define	libkdb5	%mklibname kdb5_ %{kdb5_major}
 
 %define	ldap_major 1
@@ -41,8 +44,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.10.7
-Release:	2
+Version:	1.12.1
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -72,26 +75,21 @@ Source35:	kdb_check_weak.c
 Source40:	%{name}.rpmlintrc
 
 Patch5:		krb5-1.10-ksu-access.patch
-Patch6:		krb5-1.10-ksu-path.patch
-Patch12:	krb5-1.7-ktany.patch
-Patch16:	krb5-1.10-buildconf.patch
+Patch6:		krb5-1.12-ksu-path.patch
+Patch12:	krb5-1.12-ktany.patch
+Patch16:	krb5-1.12-buildconf.patch
 Patch23:	krb5-1.3.1-dns.patch
 Patch29:	krb5-1.10-kprop-mktemp.patch
 Patch30:	krb5-1.3.4-send-pr-tempfile.patch
-Patch39:	krb5-1.8-api.patch
+Patch39:	krb5-1.12-api.patch
 Patch56:	krb5-1.10-doublelog.patch
 Patch59:	krb5-1.10-kpasswd_tcp.patch
-Patch60:	krb5-1.10.2-pam.patch
-Patch61:	krb5-1.10.2-manpaths.patch
+Patch60:	krb5-1.12-pam.patch
 Patch63:	krb5-1.10.2-selinux-label.patch
-Patch71:	krb5-1.9-dirsrv-accountlock.patch
+Patch71:	krb5-1.11-dirsrv-accountlock.patch
 Patch75:	krb5-pkinit-debug.patch
 Patch86:	krb5-1.9-debuginfo.patch
-Patch100:	krb5-trunk-7046.patch
-Patch101:	krb5-trunk-7047.patch
-Patch102:	krb5-trunk-7048.patch
 Patch105:	krb5-kvno-230379.patch
-Patch106:	krb5-1.10.2-keytab-etype.patch
 Patch107:	krb5-aarch64.patch
 
 BuildRequires:	bison
@@ -103,10 +101,12 @@ BuildRequires:	pam-devel
 %if %{with selinux}
 BuildRequires:	selinux-devel
 %endif
+BuildRequires:	python-sphinx
 BuildRequires:	pkgconfig(com_err)
 BuildRequires:	pkgconfig(libverto)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(openssl)
+BuildRequires:	texlive
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
@@ -130,6 +130,7 @@ Requires:	%{libnamesupport} >= %{version}
 Requires:	%{libkadm5clnt_mit} >= %{version}
 Requires:	%{libkadm5srv_mit} >= %{version}
 Requires:	%{libkdb5} >= %{version}
+Requires:	%{libnamerad} >= %{version}
 %if !%{bootstrap}
 Requires:	%{libkdb_ldap} >= %{version}
 %endif
@@ -183,6 +184,14 @@ Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description -n	%{libnamesupport}
 This package contains the shared library krb5support for %{name}.
+
+%package -n     %{libnamerad}
+Summary:        The shared library used by Kerberos 5 - krad
+Group:          System/Libraries
+Conflicts:      %{_lib}krb53 < 1.9.2-3
+
+%description -n %{libnamerad}
+This package contains the shared library krad for %{name}.
 
 %package -n	%{libkadm5clnt_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit
@@ -278,8 +287,6 @@ ln -s NOTICE LICENSE
 
 %patch60 -p1 -b .pam
 
-%patch61 -p1 -b .manpaths
-
 %if %{with selinux}
 %patch63 -p1 -b .selinux-label
 %endif
@@ -297,48 +304,11 @@ ln -s NOTICE LICENSE
 %patch71 -p1 -b .dirsrv-accountlock
 #%patch75 -p1 -b .pkinit-debug
 %patch86 -p0 -b .debuginfo
-%patch100 -p1 -b .7046
-%patch101 -p1 -b .7047
-%patch102 -p1 -b .7048
 %patch105 -p1 -b .kvno
-%patch106 -p1 -b .keytab-etype
-%patch107 -p1 -b .aarch64
-rm src/lib/krb5/krb/deltat.c
-
-
-
-gzip doc/*.ps
-
-sed -i -e '1s!\[twoside\]!!;s!%\(\\usepackage{hyperref}\)!\1!' \
-    doc/api/library.tex
-sed -i -e '1c\
-\\documentclass{article}\
-\\usepackage{fixunder}\
-\\usepackage{functions}\
-\\usepackage{fancyheadings}\
-\\usepackage{hyperref}' doc/implement/implement.tex
+#%patch107 -p1 -b .aarch64
 
 # Take the execute bit off of documentation.
-chmod -x doc/krb5-protocol/*.txt doc/*.html doc/*/*.html 
-
-# Rename the man pages so that they'll get generated correctly. Uses the
-# "krb5-1.8-manpaths.txt" source file.
-pushd src
-cat %{SOURCE25} | while read manpage ; do
-    mv "$manpage" "$manpage".in
-done
-popd 
-
-# Check that the PDFs we built earlier match this source tree, using the
-# "krb5-tex-pdf.sh" source file.
-#sh %{SOURCE24} check << EOF
-#doc/api       library krb5
-#doc/implement implement
-#doc/kadm5     adb-unit-test
-#doc/kadm5     api-unit-test
-#doc/kadm5     api-funcspec
-#doc/kadm5     api-server-design
-#EOF
+chmod -x doc/krb5-protocol/*.txt 
 
 sed -i s,^attributetype:,attributetypes:,g \
     src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif 
@@ -363,7 +333,7 @@ CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
 CXXFLAGS=`echo $CXXFLAGS|sed -e 's|-fPIE||g'`
 RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's|-fPIE||g'`
 
-cd src
+pushd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
 INCLUDES=-I%{_includedir}/et
 CFLAGS="`echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC`"
@@ -391,6 +361,18 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
 	#--with-netlib=-lresolv
 
 %make
+popd
+
+# Build the docs.
+make -C src/doc paths.py version.py
+cp src/doc/paths.py doc/
+mkdir -p build-man build-html build-pdf
+sphinx-build -a -b man   -t pathsubs doc build-man
+sphinx-build -a -b html  -t pathsubs doc build-html
+rm -fr build-html/_sources
+sphinx-build -a -b latex -t pathsubs doc build-pdf
+make -C build-pdf
+
 
 %check
 # Run the test suite.  Won't run in the build system because /dev/pts is
@@ -398,9 +380,6 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
 # make check TMPDIR=%{_tmppath}
 
 %install
-# Info docs.
-install -d %{buildroot}%{_infodir}
-install -m 644 doc/*.info* %{buildroot}%{_infodir}
 
 # Sample KDC config files (bundled kdc.conf and kadm5.acl).
 install -d %{buildroot}%{_sysconfdir}/kerberos/krb5kdc
@@ -484,6 +463,11 @@ perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 
 %multiarch_includes %{buildroot}%{_includedir}/krb5.h
 
+# Install processed man pages.
+for section in 1 5 8; do
+	install -m 644 build-man/*.$section %{buildroot}%{_mandir}/man$section/
+done
+
 %post server
 if [ $1 -eq 1 ] ; then 
     # Initial installation 
@@ -531,16 +515,15 @@ fi
 %dir %{_libdir}/krb5/plugins/authdata
 #{_libdir}/krb5/plugins/*
 #%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
+%{_libdir}/krb5/plugins/preauth/otp.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
-%{_mandir}/man1/kerberos.1*
 %{_datadir}/locale/en_US/LC_MESSAGES/mit-krb5.mo
 
 %files workstation
-%doc doc/user*.ps.gz src/config-files/services.append
-%doc doc/{kdestroy,kinit,klist,kpasswd,ksu}.html
-%doc doc/krb5-user.html 
+%doc src/config-files/services.append
+%doc build-html/*
+%doc build-pdf/user.pdf build-pdf/basic.pdf
 %attr(0755,root,root) %doc src/config-files/convert-config-files
-%{_infodir}/krb5-user.info*
 %{_mandir}/man5/krb5.conf.5*
 %{_bindir}/kdestroy
 %{_bindir}/kswitch
@@ -573,10 +556,7 @@ fi
 %{_mandir}/man1/krb5-send-pr.1*
 
 %files server
-%doc doc/admin*.ps.gz
-%doc doc/install*.ps.gz
-%doc doc/krb5-admin.html
-%doc doc/krb5-install.html
+%doc build-pdf/admin.pdf build-pdf/build.pdf
 %{_unitdir}/krb5kdc.service
 %{_unitdir}/kadmin.service
 %{_unitdir}/kprop.service
@@ -587,12 +567,11 @@ fi
 %config(noreplace) %{_sysconfdir}/portreserve/krb5_prop
 %config(noreplace) %{_sysconfdir}/logrotate.d/krb5kdc
 %config(noreplace) %{_sysconfdir}/logrotate.d/kadmind
-%{_infodir}/krb5-admin.info*
-%{_infodir}/krb5-install.info*
 %dir /var/log/kerberos
 %dir %{_sysconfdir}/kerberos/krb5kdc
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kdc.conf
 %config(noreplace) %{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
+%{_mandir}/man5/kadm5.acl.5*
 %{_mandir}/man5/kdc.conf.5*
 %{_sbindir}/kadmin.local
 %{_mandir}/man8/kadmin.local.8*
@@ -611,6 +590,7 @@ fi
 %{_sbindir}/sim_server
 %{_bindir}/sclient
 %{_mandir}/man1/sclient.1*
+%{_mandir}/man1/krb5-config.1*
 %{_sbindir}/sserver
 %{_mandir}/man8/sserver.8*
 
@@ -629,6 +609,9 @@ fi
 %files -n %{libnamesupport}
 %{_libdir}/libkrb5support.so.%{support_major}*
 
+%files -n %{libnamerad}
+%{_libdir}/libkrad.so.%{rad_major}*
+
 %files -n %{libkadm5clnt_mit}
 %{_libdir}/libkadm5clnt_mit.so.%{mit_major}*
 
@@ -644,12 +627,8 @@ fi
 %endif
 
 %files -n %{develname}
-%doc doc/api
-%doc doc/implement
-%doc doc/kadm5
-%doc doc/kadmin
+%doc build-pdf/appdev.pdf build-pdf/plugindev.pdf
 %doc doc/krb5-protocol
-%doc doc/rpc
 %{_includedir}/*.h
 %{_includedir}/gssapi
 %{_includedir}/gssrpc
@@ -672,10 +651,11 @@ fi
 %{_libdir}/libkdb5.so
 %{_libdir}/libkrb5.so
 %{_libdir}/libkrb5support.so
+%{_libdir}/libkrad.so
 %if !%{bootstrap}
 %{_libdir}/libkdb_ldap.so
 %endif
-%{_mandir}/man1/krb5-config.1*
+%{_libdir}/pkgconfig/*
 
 # Protocol test clients
 %{_bindir}/sim_client
