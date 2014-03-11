@@ -16,7 +16,10 @@
 %define	support_major 0
 %define	libnamesupport	%mklibname %{name}support %{support_major}
 
-%define	mit_major 8
+%define rad_major 0
+%define libnamerad %mklibname krad %{rad_major}
+
+%define	mit_major 9
 %define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
 %define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
 
@@ -72,16 +75,16 @@ Source35:	kdb_check_weak.c
 Source40:	%{name}.rpmlintrc
 
 Patch5:		krb5-1.10-ksu-access.patch
-Patch6:		krb5-1.10-ksu-path.patch
-Patch12:	krb5-1.7-ktany.patch
-Patch16:	krb5-1.10-buildconf.patch
+Patch6:		krb5-1.12-ksu-path.patch
+Patch12:	krb5-1.12-ktany.patch
+Patch16:	krb5-1.12-buildconf.patch
 Patch23:	krb5-1.3.1-dns.patch
 Patch29:	krb5-1.10-kprop-mktemp.patch
 Patch30:	krb5-1.3.4-send-pr-tempfile.patch
-Patch39:	krb5-1.8-api.patch
+Patch39:	krb5-1.12-api.patch
 Patch56:	krb5-1.10-doublelog.patch
 Patch59:	krb5-1.10-kpasswd_tcp.patch
-Patch60:	krb5-1.11-pam.patch
+Patch60:	krb5-1.12-pam.patch
 Patch63:	krb5-1.10.2-selinux-label.patch
 Patch71:	krb5-1.11-dirsrv-accountlock.patch
 Patch75:	krb5-pkinit-debug.patch
@@ -127,6 +130,7 @@ Requires:	%{libnamesupport} >= %{version}
 Requires:	%{libkadm5clnt_mit} >= %{version}
 Requires:	%{libkadm5srv_mit} >= %{version}
 Requires:	%{libkdb5} >= %{version}
+Requires:	%{libnamerad} >= %{version}
 %if !%{bootstrap}
 Requires:	%{libkdb_ldap} >= %{version}
 %endif
@@ -180,6 +184,14 @@ Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description -n	%{libnamesupport}
 This package contains the shared library krb5support for %{name}.
+
+%package -n     %{libnamerad}
+Summary:        The shared library used by Kerberos 5 - krad
+Group:          System/Libraries
+Conflicts:      %{_lib}krb53 < 1.9.2-3
+
+%description -n %{libnamerad}
+This package contains the shared library krad for %{name}.
 
 %package -n	%{libkadm5clnt_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit
@@ -293,7 +305,7 @@ ln -s NOTICE LICENSE
 #%patch75 -p1 -b .pkinit-debug
 %patch86 -p0 -b .debuginfo
 %patch105 -p1 -b .kvno
-%patch107 -p1 -b .aarch64
+#%patch107 -p1 -b .aarch64
 
 # Take the execute bit off of documentation.
 chmod -x doc/krb5-protocol/*.txt 
@@ -503,6 +515,7 @@ fi
 %dir %{_libdir}/krb5/plugins/authdata
 #{_libdir}/krb5/plugins/*
 #%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
+%{_libdir}/krb5/plugins/preauth/otp.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
 %{_datadir}/locale/en_US/LC_MESSAGES/mit-krb5.mo
 
@@ -596,6 +609,9 @@ fi
 %files -n %{libnamesupport}
 %{_libdir}/libkrb5support.so.%{support_major}*
 
+%files -n %{libnamerad}
+%{_libdir}/libkrad.so.%{rad_major}*
+
 %files -n %{libkadm5clnt_mit}
 %{_libdir}/libkadm5clnt_mit.so.%{mit_major}*
 
@@ -635,9 +651,11 @@ fi
 %{_libdir}/libkdb5.so
 %{_libdir}/libkrb5.so
 %{_libdir}/libkrb5support.so
+%{_libdir}/libkrad.so
 %if !%{bootstrap}
 %{_libdir}/libkdb_ldap.so
 %endif
+%{_libdir}/pkgconfig/*
 
 # Protocol test clients
 %{_bindir}/sim_client
