@@ -1,0 +1,20 @@
+--- krb5-1.12.2/doc/conf.py.orig	2014-09-20 20:24:08.883146439 +0100
++++ krb5-1.12.2/doc/conf.py	2014-09-20 20:25:05.796142246 +0100
+@@ -50,7 +50,7 @@
+ # The version info for the project you're documenting, acts as replacement for
+ # |version| and |release|, also used in various other places throughout the
+ # built documents.
+-execfile("version.py")
++exec(open("version.py").read())
+ # The short X.Y version.
+ r_list = [r_major, r_minor]
+ if r_patch:
+@@ -237,7 +237,7 @@
+     ckeytab = '``@CKTNAME@``'
+ elif 'pathsubs' in tags:
+     # Read configured paths from a file produced by the build system.
+-    execfile('paths.py')
++    exec(open('paths.py').read())
+ else:
+     bindir = ':ref:`BINDIR <paths>`'
+     sbindir = ':ref:`SBINDIR <paths>`'
