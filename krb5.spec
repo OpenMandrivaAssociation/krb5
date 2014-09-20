@@ -44,7 +44,7 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.12.1
+Version:	1.12.2
 Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
@@ -82,7 +82,6 @@ Patch23:	krb5-1.3.1-dns.patch
 Patch29:	krb5-1.10-kprop-mktemp.patch
 Patch30:	krb5-1.3.4-send-pr-tempfile.patch
 Patch39:	krb5-1.12-api.patch
-Patch56:	krb5-1.10-doublelog.patch
 Patch59:	krb5-1.10-kpasswd_tcp.patch
 Patch60:	krb5-1.12-pam.patch
 Patch63:	krb5-1.10.2-selinux-label.patch
@@ -299,13 +298,12 @@ ln -s NOTICE LICENSE
 %patch29 -p1 -b .kprop-mktemp
 %patch30 -p1 -b .send-pr-tempfile
 %patch39 -p1 -b .api
-%patch56 -p1 -b .doublelog
 %patch59 -p1 -b .kpasswd_tcp
 %patch71 -p1 -b .dirsrv-accountlock
-#%patch75 -p1 -b .pkinit-debug
+#patch75 -p1 -b .pkinit-debug
 %patch86 -p0 -b .debuginfo
 %patch105 -p1 -b .kvno
-#%patch107 -p1 -b .aarch64
+#patch107 -p1 -b .aarch64
 
 # Take the execute bit off of documentation.
 chmod -x doc/krb5-protocol/*.txt 
