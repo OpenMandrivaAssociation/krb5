@@ -106,7 +106,7 @@ BuildRequires:	pkgconfig(com_err)
 BuildRequires:	pkgconfig(libverto)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(openssl)
-BuildRequires:	texlive
+BuildRequires:	texlive-latex
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
