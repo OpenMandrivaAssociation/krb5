@@ -44,8 +44,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.12.2
-Release:	2
+Version:	1.13.1
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -79,13 +79,10 @@ Patch6:		krb5-1.12-ksu-path.patch
 Patch12:	krb5-1.12-ktany.patch
 Patch16:	krb5-1.12-buildconf.patch
 Patch23:	krb5-1.3.1-dns.patch
-Patch29:	krb5-1.10-kprop-mktemp.patch
-Patch30:	krb5-1.3.4-send-pr-tempfile.patch
 Patch39:	krb5-1.12-api.patch
-Patch59:	krb5-1.10-kpasswd_tcp.patch
-Patch60:	krb5-1.12-pam.patch
+Patch60:	krb5-1.12.1-pam.patch
 Patch63:	krb5-1.10.2-selinux-label.patch
-Patch71:	krb5-1.11-dirsrv-accountlock.patch
+Patch71:	krb5-1.13-dirsrv-accountlock.patch
 Patch75:	krb5-pkinit-debug.patch
 Patch86:	krb5-1.9-debuginfo.patch
 Patch105:	krb5-kvno-230379.patch
@@ -292,15 +289,12 @@ ln -s NOTICE LICENSE
 %patch63 -p1 -b .selinux-label
 %endif
 
-%patch5  -p1 -b .ksu-access
+#patch5  -p1 -b .ksu-access
 %patch6  -p1 -b .ksu-path
 %patch12 -p1 -b .ktany
 %patch16 -p1 -b .buildconf
 %patch23 -p1 -b .dns
-%patch29 -p1 -b .kprop-mktemp
-%patch30 -p1 -b .send-pr-tempfile
 %patch39 -p1 -b .api
-%patch59 -p1 -b .kpasswd_tcp
 %patch71 -p1 -b .dirsrv-accountlock
 #patch75 -p1 -b .pkinit-debug
 %patch86 -p0 -b .debuginfo
