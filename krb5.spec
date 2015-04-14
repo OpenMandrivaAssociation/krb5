@@ -29,7 +29,7 @@
 %define	gssrpc_major 4
 %define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
 
-%define	kdb5_major 7
+%define	kdb5_major 8
 %define	libkdb5	%mklibname kdb5_ %{kdb5_major}
 
 %define	ldap_major 1
@@ -510,10 +510,12 @@ fi
 %dir %{_libdir}/krb5/plugins/kdb
 %dir %{_libdir}/krb5/plugins/preauth
 %dir %{_libdir}/krb5/plugins/authdata
+%dir %{_libdir}/krb5/plugins/tls
 #{_libdir}/krb5/plugins/*
 #%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
 %{_libdir}/krb5/plugins/preauth/otp.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
+%{_libdir}/krb5/plugins/tls/k5tls.so
 %{_datadir}/locale/en_US/LC_MESSAGES/mit-krb5.mo
 
 %files workstation
@@ -547,10 +549,7 @@ fi
 %attr(4755,root,root) %{_bindir}/ksu
 %{_mandir}/man1/ksu.1*
 %config(noreplace) /etc/pam.d/ksu
-# Problem-reporting tool
-%{_datadir}/gnats
 %{_sbindir}/krb5-send-pr
-%{_mandir}/man1/krb5-send-pr.1*
 
 %files server
 %doc build-pdf/admin.pdf build-pdf/build.pdf
