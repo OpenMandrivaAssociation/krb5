@@ -45,7 +45,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.13.1
-Release:	2
+Release:	3
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -334,9 +334,9 @@ pushd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
 INCLUDES=-I%{_includedir}/et
 CFLAGS="`echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC`"
-CPPFLAGS="`echo $DEFINES $INCLUDES`" 
+CPPFLAGS="`echo $DEFINES $INCLUDES`"
 
-%configure2_5x \
+%configure \
 	CC="%{__cc}" \
 	CFLAGS="$CFLAGS" \
 	CPPFLAGS="$CPPFLAGS" \
