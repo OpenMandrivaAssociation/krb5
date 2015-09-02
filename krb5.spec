@@ -92,6 +92,7 @@ Patch109:	krb5-1.13.1-warning.patch
 
 BuildRequires:	bison
 BuildRequires:	flex
+BuildRequires:	diffutils
 BuildRequires:	libtool
 BuildRequires:	systemd-units
 BuildRequires:	keyutils-devel
