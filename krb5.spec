@@ -19,7 +19,7 @@
 %define rad_major 0
 %define libnamerad %mklibname krad %{rad_major}
 
-%define	mit_major 9
+%define	mit_major 10
 %define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
 %define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
 
@@ -44,14 +44,14 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.13.2
+Version:	1.14
 Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
 # from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
-Source0:	krb5-%{version}.tar.gz
-Source1:	krb5-%{version}.tar.gz.asc
+Source0:	http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-%{version}.tar.gz
+Source1:	http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-%{version}.tar.gz.asc
 Source2:	kprop.service
 Source4:	kadmin.service
 Source5:	krb5kdc.service
@@ -85,7 +85,6 @@ Patch63:	krb5-1.10.2-selinux-label.patch
 Patch71:	krb5-1.13-dirsrv-accountlock.patch
 Patch75:	krb5-pkinit-debug.patch
 Patch86:	krb5-1.9-debuginfo.patch
-Patch105:	krb5-kvno-230379.patch
 Patch107:	krb5-aarch64.patch
 Patch108:	krb5-1.12.2-python3.patch
 Patch109:	krb5-1.13.1-warning.patch
@@ -515,6 +514,7 @@ fi
 #{_libdir}/krb5/plugins/*
 #%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
 %{_libdir}/krb5/plugins/preauth/otp.so
+%{_libdir}/krb5/plugins/preauth/test.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
 %{_libdir}/krb5/plugins/tls/k5tls.so
 %{_datadir}/locale/en_US/LC_MESSAGES/mit-krb5.mo
