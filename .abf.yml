@@ -2,7 +2,8 @@ removed_sources:
   krb5-1.11.4.tar.gz: 99d36c2355766a6813fb48579828d3883e01b5ef
   krb5-1.12.1.tar.gz: ed1d315e9466145b209cc98c7c6325f576592767
   krb5-1.12.3.tar.gz: 89c2924c712ee8dbbccd77536f877179ff469572
+  krb5-1.12.4.tar.gz: cc2dc02447312c07a70da2167408c0fbd381dcf4
 sources:
   krb5-1.10.3-pdf.tar.xz: 150677b2d8159746b282bc1c358e0e475e7200c4
-  krb5-1.12.4.tar.gz: cc2dc02447312c07a70da2167408c0fbd381dcf4
-  krb5-1.12.4.tar.gz.asc: eca245e518913dac892af1f888ecd643007b5f77
+  krb5-1.12.5.tar.gz: 7dfe4d1ba85df361b8afaeb4ed4610df7247842b
+  krb5-1.12.5.tar.gz.asc: a3c9fd90fdbd1d68ab09ae5fddd797eea16a0705
