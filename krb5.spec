@@ -1,4 +1,5 @@
 %bcond_with	crosscompile
+%bcond_with	docs
 %if %{with crosscompile}
 %define bootstrap 1
 %else
@@ -45,7 +46,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.14
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -104,8 +105,10 @@ BuildRequires:	pkgconfig(com_err)
 BuildRequires:	pkgconfig(libverto)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(openssl)
+%if %{with docs}
 BuildRequires:	texlive
 BuildRequires:	texlive-latex-bin
+%endif
 %if %enable_check
 BuildRequires:	dejagnu
 %endif
@@ -360,6 +363,7 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
 %make
 popd
 
+%if %{with docs}
 # Build the docs.
 make -C src/doc paths.py version.py
 cp src/doc/paths.py doc/
@@ -369,6 +373,7 @@ sphinx-build -a -b html  -t pathsubs doc build-html
 rm -fr build-html/_sources
 sphinx-build -a -b latex -t pathsubs doc build-pdf
 make -C build-pdf
+%endif
 
 
 %check
@@ -460,10 +465,12 @@ perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 
 %multiarch_includes %{buildroot}%{_includedir}/krb5.h
 
+%if %{with docs}
 # Install processed man pages.
 for section in 1 5 8; do
 	install -m 644 build-man/*.$section %{buildroot}%{_mandir}/man$section/
 done
+%endif
 
 %post server
 if [ $1 -eq 1 ] ; then 
@@ -521,8 +528,10 @@ fi
 
 %files workstation
 %doc src/config-files/services.append
+%if %{with docs}
 %doc build-html/*
 %doc build-pdf/user.pdf build-pdf/basic.pdf
+%endif
 %attr(0755,root,root) %doc src/config-files/convert-config-files
 %{_mandir}/man5/krb5.conf.5*
 %{_bindir}/kdestroy
@@ -553,7 +562,9 @@ fi
 %{_sbindir}/krb5-send-pr
 
 %files server
+%if %{with docs}
 %doc build-pdf/admin.pdf build-pdf/build.pdf
+%endif
 %{_unitdir}/krb5kdc.service
 %{_unitdir}/kadmin.service
 %{_unitdir}/kprop.service
@@ -624,7 +635,9 @@ fi
 %endif
 
 %files -n %{develname}
+%if %{with docs}
 %doc build-pdf/appdev.pdf build-pdf/plugindev.pdf
+%endif
 %doc doc/krb5-protocol
 %{_includedir}/*.h
 %{_includedir}/gssapi
