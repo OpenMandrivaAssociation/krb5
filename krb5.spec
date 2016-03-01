@@ -44,7 +44,7 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.14
+Version:	1.14.1
 Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
@@ -87,7 +87,6 @@ Patch75:	krb5-pkinit-debug.patch
 Patch86:	krb5-1.9-debuginfo.patch
 Patch107:	krb5-aarch64.patch
 Patch108:	krb5-1.12.2-python3.patch
-Patch109:	krb5-1.13.1-warning.patch
 
 BuildRequires:	bison
 BuildRequires:	flex
@@ -299,10 +298,8 @@ ln -s NOTICE LICENSE
 %patch71 -p1 -b .dirsrv-accountlock
 #patch75 -p1 -b .pkinit-debug
 %patch86 -p0 -b .debuginfo
-%patch105 -p1 -b .kvno
 #patch107 -p1 -b .aarch64
 %patch108 -p1 -b .py3
-%patch109 -p1 -b .warn
 
 # Take the execute bit off of documentation.
 chmod -x doc/krb5-protocol/*.txt 
