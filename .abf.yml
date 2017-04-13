@@ -1,4 +1,4 @@
 sources:
   krb5-1.10.3-pdf.tar.xz: 150677b2d8159746b282bc1c358e0e475e7200c4
-  krb5-1.14.3.tar.gz: 35b8447aa04ebfd7e22bc22fa49b3bb4a858ac9a
-  krb5-1.14.3.tar.gz.asc: 2ec7807130ccdf104bab5f1d488576c2b7c85c11
+  krb5-1.15.1.tar.gz: 810210a61070ea371014ac514d191bbe5cdac2e2
+  krb5-1.15.1.tar.gz.asc: fcf45fcbd9e5938f8df71b2efb25c8ca56c50750

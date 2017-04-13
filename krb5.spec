@@ -20,7 +20,7 @@
 %define rad_major 0
 %define libnamerad %mklibname krad %{rad_major}
 
-%define	mit_major 10
+%define	mit_major 11
 %define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
 %define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
 
@@ -45,14 +45,14 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.14.3
+Version:	1.15.1
 Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
 # from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
-Source0:	http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-%{version}.tar.gz
-Source1:	http://web.mit.edu/kerberos/dist/krb5/1.14/krb5-%{version}.tar.gz.asc
+Source0:	http://web.mit.edu/kerberos/dist/krb5/1.15/krb5-%{version}.tar.gz
+Source1:	http://web.mit.edu/kerberos/dist/krb5/1.15/krb5-%{version}.tar.gz.asc
 Source2:	kprop.service
 Source4:	kadmin.service
 Source5:	krb5kdc.service
@@ -295,17 +295,14 @@ ln -s NOTICE LICENSE
 #patch5  -p1 -b .ksu-access
 %patch6  -p1 -b .ksu-path
 %patch12 -p1 -b .ktany
-%patch16 -p1 -b .buildconf
+#patch16 -p1 -b .buildconf
 %patch23 -p1 -b .dns
 %patch39 -p1 -b .api
 %patch71 -p1 -b .dirsrv-accountlock
 #patch75 -p1 -b .pkinit-debug
-%patch86 -p0 -b .debuginfo
+%patch86 -p1 -b .debuginfo
 #patch107 -p1 -b .aarch64
 %patch108 -p1 -b .py3
-
-# Take the execute bit off of documentation.
-chmod -x doc/krb5-protocol/*.txt 
 
 sed -i s,^attributetype:,attributetypes:,g \
     src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif 
@@ -635,7 +632,7 @@ fi
 %if %{with docs}
 %doc build-pdf/appdev.pdf build-pdf/plugindev.pdf
 %endif
-%doc doc/krb5-protocol
+%{_docdir}/%{_lib}krb5-devel
 %{_includedir}/*.h
 %{_includedir}/gssapi
 %{_includedir}/gssrpc
