@@ -46,7 +46,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.15.1
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -448,17 +448,6 @@ install -d %{buildroot}/var/log/kerberos
 perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 
 
-# multiarch policy
-%multiarch_binaries %{buildroot}%{_bindir}/krb5-config
-
-%multiarch_includes %{buildroot}%{_includedir}/gssapi/gssapi.h
-
-# (gb) this one could be fixed differently and properly using <stdint.h>
-
-%multiarch_includes %{buildroot}%{_includedir}/gssrpc/types.h
-
-%multiarch_includes %{buildroot}%{_includedir}/krb5.h
-
 %if %{with docs}
 # Install processed man pages.
 for section in 1 5 8; do
@@ -638,13 +627,7 @@ fi
 %{_includedir}/gssrpc
 %{_includedir}/kadm5
 %{_includedir}/krb5
-%dir %{multiarch_includedir}/gssapi
-%{multiarch_includedir}/gssapi/gssapi.h
-%dir %{multiarch_includedir}/gssrpc
-%{multiarch_includedir}/gssrpc/types.h
-%{multiarch_includedir}/krb5.h
 %{_bindir}/krb5-config
-%{multiarch_bindir}/krb5-config
 %{_libdir}/libgssapi_krb5.so
 %{_libdir}/libgssrpc.so
 %{_libdir}/libk5crypto.so
