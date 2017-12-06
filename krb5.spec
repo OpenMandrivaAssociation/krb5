@@ -30,7 +30,7 @@
 %define	gssrpc_major 4
 %define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
 
-%define	kdb5_major 8
+%define	kdb5_major 9
 %define	libkdb5	%mklibname kdb5_ %{kdb5_major}
 
 %define	ldap_major 1
@@ -45,14 +45,14 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.15.1
-Release:	2
+Version:	1.16
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
 # from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
-Source0:	http://web.mit.edu/kerberos/dist/krb5/1.15/krb5-%{version}.tar.gz
-Source1:	http://web.mit.edu/kerberos/dist/krb5/1.15/krb5-%{version}.tar.gz.asc
+Source0:	http://web.mit.edu/kerberos/dist/krb5/%(echo %{version} |cut -d. -f1-2)/krb5-%{version}.tar.gz
+Source1:	http://web.mit.edu/kerberos/dist/krb5/%(echo %{version} |cut -d. -f1-2)/krb5-%{version}.tar.gz.asc
 Source2:	kprop.service
 Source4:	kadmin.service
 Source5:	krb5kdc.service
@@ -77,6 +77,7 @@ Source40:	%{name}.rpmlintrc
 
 Patch5:		krb5-1.10-ksu-access.patch
 Patch6:		krb5-1.12-ksu-path.patch
+Patch7:		krb5-1.16-clang.patch
 Patch12:	krb5-1.12-ktany.patch
 Patch16:	krb5-1.12-buildconf.patch
 Patch23:	krb5-1.3.1-dns.patch
@@ -294,6 +295,7 @@ ln -s NOTICE LICENSE
 
 #patch5  -p1 -b .ksu-access
 %patch6  -p1 -b .ksu-path
+%patch7 -p1 -b .compile~
 %patch12 -p1 -b .ktany
 #patch16 -p1 -b .buildconf
 %patch23 -p1 -b .dns
@@ -447,6 +449,7 @@ install -d %{buildroot}/var/log/kerberos
 # clear the LDFLAGS
 perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 
+%find_lang mit-krb5
 
 %if %{with docs}
 # Install processed man pages.
@@ -491,7 +494,7 @@ fi
 /bin/systemctl try-restart kprop.service >/dev/null 2>&1 || :
 
 
-%files
+%files -f mit-krb5.lang
 %doc README
 %config(noreplace) %{_sysconfdir}/krb5.conf
 %dir %{_sysconfdir}/kerberos
@@ -507,7 +510,6 @@ fi
 %{_libdir}/krb5/plugins/preauth/test.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
 %{_libdir}/krb5/plugins/tls/k5tls.so
-%{_datadir}/locale/en_US/LC_MESSAGES/mit-krb5.mo
 
 %files workstation
 %doc src/config-files/services.append
