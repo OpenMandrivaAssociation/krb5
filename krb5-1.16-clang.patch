@@ -1,0 +1,11 @@
+--- krb5-1.16/src/lib/krb5/krb/deltat.c.omv~	2017-12-15 14:14:20.083522654 +0100
++++ krb5-1.16/src/lib/krb5/krb/deltat.c	2017-12-15 14:14:35.201525464 +0100
+@@ -304,7 +304,7 @@ typedef short int yytype_int16;
+ # define YYUSE(E) /* empty */
+ #endif
+ 
+-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
++#if !defined(__clang__) && defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+ /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
+ # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
+     _Pragma ("GCC diagnostic push") \
