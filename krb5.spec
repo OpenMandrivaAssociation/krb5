@@ -1,5 +1,5 @@
-%bcond_with	crosscompile
-%bcond_with	docs
+%bcond_with crosscompile
+%bcond_with docs
 %if %{with crosscompile}
 %define bootstrap 1
 %else
@@ -10,43 +10,41 @@
 %{?_without_bootstrap: %global bootstrap 0}
 %{?_with_bootstrap: %global bootstrap 1}
 
-%define	major 3
-%define	libname	%mklibname %{name}_ %{major}
-%define	libk5crypto	%mklibname k5crypto %{major}
+%define major 3
+%define libname %mklibname %{name}_ %{major}
+%define libk5crypto %mklibname k5crypto %{major}
 
-%define	support_major 0
-%define	libnamesupport	%mklibname %{name}support %{support_major}
+%define support_major 0
+%define libnamesupport %mklibname %{name}support %{support_major}
 
 %define rad_major 0
 %define libnamerad %mklibname krad %{rad_major}
 
-%define	mit_major 11
-%define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
-%define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
+%define mit_major 11
+%define libkadm5clnt_mit %mklibname kadm5clnt_mit %{mit_major}
+%define libkadm5srv_mit %mklibname kadm5srv_mit %{mit_major}
 
-%define	gssapi_major 2
-%define	libgssapi_krb5	%mklibname gssapi_%{name}_ %{gssapi_major}
+%define gssapi_major 2
+%define libgssapi_krb5 %mklibname gssapi_%{name}_ %{gssapi_major}
 
-%define	gssrpc_major 4
-%define	libgssrpc	%mklibname gssrpc %{gssrpc_major}
+%define gssrpc_major 4
+%define libgssrpc %mklibname gssrpc %{gssrpc_major}
 
-%define	kdb5_major 9
-%define	libkdb5	%mklibname kdb5_ %{kdb5_major}
+%define kdb5_major 9
+%define libkdb5 %mklibname kdb5_ %{kdb5_major}
 
-%define	ldap_major 1
-%define	libkdb_ldap	%mklibname kdb_ldap %{ldap_major}
+%define ldap_major 1
+%define libkdb_ldap %mklibname kdb_ldap %{ldap_major}
 
-%define develname	%mklibname -d %{name}
+%define develname %mklibname -d %{name}
 # enable checking after compile
 %define enable_check 0
 %{?_with_check: %global %enable_check 1}
 
-%bcond_with	selinux
-
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.16
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -83,7 +81,6 @@ Patch16:	krb5-1.12-buildconf.patch
 Patch23:	krb5-1.3.1-dns.patch
 Patch39:	krb5-1.12-api.patch
 Patch60:	krb5-1.12.1-pam.patch
-Patch63:	krb5-1.10.2-selinux-label.patch
 Patch71:	krb5-1.13-dirsrv-accountlock.patch
 Patch75:	krb5-pkinit-debug.patch
 Patch86:	krb5-1.9-debuginfo.patch
@@ -94,12 +91,9 @@ BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	diffutils
 BuildRequires:	libtool
-BuildRequires:	systemd-units
+BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	keyutils-devel
 BuildRequires:	pam-devel
-%if %{with selinux}
-BuildRequires:	selinux-devel
-%endif
 BuildRequires:	python-sphinx
 BuildRequires:	pkgconfig(com_err)
 BuildRequires:	pkgconfig(libverto)
@@ -122,7 +116,7 @@ Kerberos V5 is a trusted-third-party network authentication system,
 which can improve your network's security by eliminating the insecure
 practice of cleartext passwords.
 
-%package -n	%{develname}
+%package -n %{develname}
 Summary:	Development files needed for compiling Kerberos 5 programs
 Group:		Development/Other
 Requires:	%{libname} >= %{version}
@@ -138,160 +132,155 @@ Requires:	%{libkdb_ldap} >= %{version}
 %endif
 Provides:	krb5-devel = %{version}-%{release}
 Obsoletes:	%{_lib}krb53-devel
-Requires:	rpm-build
 
-%description -n	%{develname}
+%description -n %{develname}
 Kerberos is a network authentication system.  The krb5-devel package
 contains the header files and libraries needed for compiling Kerberos
 5 programs. If you want to develop Kerberos-aware programs, you'll
 need to install this package.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	The shared library used by Kerberos 5
 Group:		System/Libraries
 Obsoletes:	%{_lib}krb53
-%rename	krb5-libs
+%rename krb5-libs
 
-%description -n	%{libname}
+%description -n %{libname}
 This package contains the shared library for %{name}.
 
-%package -n	%{libgssapi_krb5}
+%package -n %{libgssapi_krb5}
 Summary:	The shared library used by Kerberos 5 - gssapi_krb5
 Group:		System/Libraries
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
-%description -n	%{libgssapi_krb5}
+%description -n %{libgssapi_krb5}
 This package contains the shared library gssrpc for %{name}.
 
-%package -n	%{libgssrpc}
+%package -n %{libgssrpc}
 Summary:	The shared library used by Kerberos 5 - gssrpc
 Group:		System/Libraries
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
-%description -n	%{libgssrpc}
+%description -n %{libgssrpc}
 This package contains the shared library gssrpc for %{name}.
 
-%package -n	%{libk5crypto}
+%package -n %{libk5crypto}
 Summary:	The shared library used by Kerberos 5 - k5crypto
 Group:		System/Libraries
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
-%description -n	%{libk5crypto}
+%description -n %{libk5crypto}
 This package contains the shared library k5crypto for %{name}.
 
-%package -n	%{libnamesupport}
+%package -n %{libnamesupport}
 Summary:	The shared library used by Kerberos 5 - krb5support
 Group:		System/Libraries
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
-%description -n	%{libnamesupport}
+%description -n %{libnamesupport}
 This package contains the shared library krb5support for %{name}.
 
-%package -n     %{libnamerad}
-Summary:        The shared library used by Kerberos 5 - krad
-Group:          System/Libraries
-Conflicts:      %{_lib}krb53 < 1.9.2-3
+%package -n %{libnamerad}
+Summary:	The shared library used by Kerberos 5 - krad
+Group:		System/Libraries
+Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description -n %{libnamerad}
 This package contains the shared library krad for %{name}.
 
-%package -n	%{libkadm5clnt_mit}
+%package -n %{libkadm5clnt_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit
 Group:		System/Libraries
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
-%description -n	%{libkadm5clnt_mit}
+%description -n %{libkadm5clnt_mit}
 This package contains the shared library kadm5clnt_mit for %{name}.
 
-%package -n	%{libkadm5srv_mit}
+%package -n %{libkadm5srv_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5srv_mit
 Group:		System/Libraries
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
-%description -n	%{libkadm5srv_mit}
+%description -n %{libkadm5srv_mit}
 This package contains the shared library kadm5srv_mit for %{name}.
 
-%package -n	%{libkdb5}
+%package -n %{libkdb5}
 Summary:	The shared library used by Kerberos 5 - kdb5
 Group:		System/Libraries
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
-%description -n	%{libkdb5}
+%description -n %{libkdb5}
 This package contains the shared library kdb5 for %{name}.
 
-%package -n	%{libkdb_ldap}
+%package -n %{libkdb_ldap}
 Summary:	The shared library used by Kerberos 5 - kdb_ldap
 Group:		System/Libraries
 Conflicts:	krb5-server-ldap < 1.9.2-3
 
-%description -n	%{libkdb_ldap}
+%description -n %{libkdb_ldap}
 This package contains the shared library kdb_ldap for %{name}.
 
-%package	server
+%package server
 Summary:	The server programs for Kerberos 5
 Group:		System/Servers
-Requires(post,preun): rpm-helper
-Requires(post,preun,postun): systemd-units
+Requires(post,preun):	rpm-helper
+Requires(post,preun,postun):	systemd
 # we drop files in its directory, but we don't want to own that directory
 Requires:	logrotate
 # mktemp is used by krb5-send-pr
-Requires:	mktemp
+Requires:	coreutils
 # portreserve is used by init scripts for kadmind, kpropd, and krb5kdc
 Requires:	portreserve
 
-%description	server
+%description server
 Kerberos is a network authentication system.  The krb5-server package
 contains the programs that must be installed on a Kerberos 5 server.
 If you're installing a Kerberos 5 server, you need to install this
 package (in other words, most people should NOT install this
 package).
 
-%package	server-ldap
+%package server-ldap
 Summary:	The LDAP storage plugin for the Kerberos 5 KDC
 Group:		System/Servers
 Requires:	%{name}-server >= %{version}-%{release}
 
-%description	server-ldap
+%description server-ldap
 Kerberos is a network authentication system. The krb5-server package
 contains the programs that must be installed on a Kerberos 5 key
 distribution center (KDC). If you are installing a Kerberos 5 KDC,
 and you wish to use a directory server to store the data for your
 realm, you need to install this package. 
 
-%package	workstation
+%package workstation
 Summary:	Kerberos 5 programs for use on workstations
 Group:		System/Base
 Requires(post):	rpm-helper
-Requires(preun):rpm-helper
+Requires(preun):	rpm-helper
 Provides:	kerberos-workstation
 
-%description	workstation
+%description workstation
 Kerberos is a network authentication system.  The krb5-workstation
 package contains the basic Kerberos programs (kinit, klist, kdestroy,
 kpasswd). If your network uses Kerberos, this package should be installed
 on every workstation.
 
-%package	pkinit-openssl
+%package pkinit-openssl
 Summary:	The PKINIT module for Kerberos 5
 Group:		System/Libraries
 
-%description	pkinit-openssl
+%description pkinit-openssl
 Kerberos is a network authentication system. The krb5-pkinit-openssl
 package contains the PKINIT plugin, which uses OpenSSL to allow clients
 to obtain initial credentials from a KDC using a private key and a
-certificate. 
+certificate.
 
 %prep
 %setup -q -a 23 -n krb5-%{version}
 ln -s NOTICE LICENSE
 
 %patch60 -p1 -b .pam
-
-%if %{with selinux}
-%patch63 -p1 -b .selinux-label
-%endif
 
 #patch5  -p1 -b .ksu-access
 %patch6  -p1 -b .ksu-path
@@ -309,11 +298,10 @@ ln -s NOTICE LICENSE
 sed -i s,^attributetype:,attributetypes:,g \
     src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif 
 
-
 %build
-pushd src
+cd src
     autoreconf -fi
-popd
+cd -
 %if %{with crosscompile}
 export krb5_cv_attr_constructor_destructor=yes
 export ac_cv_func_regcomp=yes
@@ -329,7 +317,7 @@ CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
 CXXFLAGS=`echo $CXXFLAGS|sed -e 's|-fPIE||g'`
 RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's|-fPIE||g'`
 
-pushd src
+cd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
 INCLUDES=-I%{_includedir}/et
 CFLAGS="`echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC`"
@@ -357,7 +345,7 @@ CPPFLAGS="`echo $DEFINES $INCLUDES`"
 	#--with-netlib=-lresolv
 
 %make
-popd
+cd -
 
 %if %{with docs}
 # Build the docs.
@@ -454,7 +442,7 @@ perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
 %if %{with docs}
 # Install processed man pages.
 for section in 1 5 8; do
-	install -m 644 build-man/*.$section %{buildroot}%{_mandir}/man$section/
+    install -m 644 build-man/*.$section %{buildroot}%{_mandir}/man$section/
 done
 %endif
 
@@ -666,4 +654,3 @@ fi
 %{_sbindir}/kdb5_ldap_util
 %{_mandir}/man8/kdb5_ldap_util.8*
 %endif
-
