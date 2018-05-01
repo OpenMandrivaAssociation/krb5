@@ -3,6 +3,7 @@
 %if %{with crosscompile}
 %define bootstrap 1
 %else
+# FIXME disable
 %define bootstrap 1
 %endif
 %define oname mit-krb5
@@ -95,6 +96,8 @@ BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	keyutils-devel
 BuildRequires:	pam-devel
 BuildRequires:	python-sphinx
+# For _unitdir macro
+BuildRequires:	systemd
 BuildRequires:	pkgconfig(com_err)
 BuildRequires:	pkgconfig(libverto)
 BuildRequires:	pkgconfig(ncurses)
