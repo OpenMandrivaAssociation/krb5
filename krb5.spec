@@ -3,7 +3,7 @@
 %if %{with crosscompile}
 %define bootstrap 1
 %else
-%define bootstrap 0
+%define bootstrap 1
 %endif
 %define oname mit-krb5
 
@@ -437,6 +437,10 @@ install -d %{buildroot}/var/log/kerberos
 
 # clear the LDFLAGS
 perl -pi -e "s|^LDFLAGS.*|LDFLAGS=''|g" %{buildroot}%{_bindir}/krb5-config
+
+%if %{bootstrap}
+rm %{buildroot}%{_mandir}/man8/kdb5_ldap_util.8*
+%endif
 
 %find_lang mit-krb5
 
