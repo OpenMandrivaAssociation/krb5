@@ -44,7 +44,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.16
-Release:	2
+Release:	3
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -99,6 +99,7 @@ BuildRequires:	pkgconfig(com_err)
 BuildRequires:	pkgconfig(libverto)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(openssl)
+BuildRequires:	pkgconfig(ss)
 %if %{with docs}
 BuildRequires:	texlive
 BuildRequires:	texlive-latex-bin
