@@ -45,7 +45,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.16
-Release:	4
+Release:	5
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -92,12 +92,11 @@ BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	diffutils
 BuildRequires:	libtool
-BuildRequires:	pkgconfig(libsystemd)
 BuildRequires:	keyutils-devel
 BuildRequires:	pam-devel
 BuildRequires:	python-sphinx
 # For _unitdir macro
-BuildRequires:	systemd
+BuildRequires:	systemd-macros
 BuildRequires:	pkgconfig(com_err)
 BuildRequires:	pkgconfig(libverto)
 BuildRequires:	pkgconfig(ncurses)
