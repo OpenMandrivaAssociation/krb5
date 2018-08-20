@@ -24,6 +24,9 @@
 %define	libkadm5clnt_mit	%mklibname kadm5clnt_mit %{mit_major}
 %define	libkadm5srv_mit	%mklibname kadm5srv_mit %{mit_major}
 
+%define oldclnt %mklibname kadm5clnt_mit 10
+%define oldsrv %mklibname kadm5srv_mit 10
+
 %define	gssapi_major 2
 %define	libgssapi_krb5	%mklibname gssapi_%{name}_ %{gssapi_major}
 
@@ -46,7 +49,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.16
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -200,6 +203,7 @@ Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit
 Group:		System/Libraries
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
+Obsoletes:	%{oldclnt} < %{EVRD}
 
 %description -n	%{libkadm5clnt_mit}
 This package contains the shared library kadm5clnt_mit for %{name}.
@@ -209,6 +213,7 @@ Summary:	The shared library used by Kerberos 5 - kadm5srv_mit
 Group:		System/Libraries
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
+Obsoletes:	%{oldsrv} < %{EVRD}
 
 %description -n	%{libkadm5srv_mit}
 This package contains the shared library kadm5srv_mit for %{name}.
