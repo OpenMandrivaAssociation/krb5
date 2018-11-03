@@ -514,6 +514,7 @@ fi
 %doc build-pdf/user.pdf build-pdf/basic.pdf
 %endif
 %attr(0755,root,root) %doc src/config-files/convert-config-files
+%{_mandir}/man7/kerberos.7*
 %{_mandir}/man5/krb5.conf.5*
 %{_bindir}/kdestroy
 %{_bindir}/kswitch
