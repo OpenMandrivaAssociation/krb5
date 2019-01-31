@@ -1,6 +1,7 @@
 removed_sources:
   krb5-1.16.1.tar.gz: 8353f2d900a7d52499c7c2605d5e295f71dd5e67
+  krb5-1.16.2.tar.gz: 6d6ef205194be386fb5f4e6bef32cb9fc79e853b
 sources:
   krb5-1.10.3-pdf.tar.xz: 150677b2d8159746b282bc1c358e0e475e7200c4
-  krb5-1.16.2.tar.gz: 6d6ef205194be386fb5f4e6bef32cb9fc79e853b
-  krb5-1.16.2.tar.gz.asc: 19845493674ab333a24c6efac7e07907e50df00c
+  krb5-1.16.3.tar.gz: eb074220289f1f16fd61b7ef406b500ad26ca0bd
+  krb5-1.16.3.tar.gz.asc: b7b9cbed5b2698f574de85d692599081ed5d68dc
