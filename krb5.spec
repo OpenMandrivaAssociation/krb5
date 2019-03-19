@@ -95,6 +95,9 @@ BuildRequires:	libtool
 BuildRequires:	keyutils-devel
 BuildRequires:	pam-devel
 BuildRequires:	python-sphinx
+%ifarch riscv64
+BuildRequires:	atomic-devel
+%endif
 # For _unitdir macro
 BuildRequires:	systemd-macros
 BuildRequires:	pkgconfig(com_err)
