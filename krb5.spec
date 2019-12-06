@@ -41,11 +41,12 @@
 # enable checking after compile
 %define enable_check 0
 %{?_with_check: %global %enable_check 1}
+%global optflags %{optflags} -Oz
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.16.3
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -87,6 +88,7 @@ Patch75:	krb5-pkinit-debug.patch
 Patch86:	krb5-1.9-debuginfo.patch
 Patch107:	krb5-aarch64.patch
 Patch108:	krb5-1.12.2-python3.patch
+Patch109:	Address-some-optimized-out-memset-calls.patch
 
 BuildRequires:	bison
 BuildRequires:	flex
@@ -320,15 +322,15 @@ sed -i "406d" src/include/k5-platform.h
 
 %serverbuild
 # it does not work with -fPIE and someone added that to the serverbuild macro...
-CFLAGS=`echo $CFLAGS|sed -e 's|-fPIE||g'`
-CXXFLAGS=`echo $CXXFLAGS|sed -e 's|-fPIE||g'`
-RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's|-fPIE||g'`
+CFLAGS=$(echo $CFLAGS|sed -e 's|-fPIE||g')
+CXXFLAGS=$(echo $CXXFLAGS|sed -e 's|-fPIE||g')
+RPM_OPT_FLAGS=$(echo $RPM_OPT_FLAGS|sed -e 's|-fPIE||g')
 
 cd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
 INCLUDES=-I%{_includedir}/et
-CFLAGS="`echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC`"
-CPPFLAGS="`echo $DEFINES $INCLUDES`"
+CFLAGS="$(echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC)"
+CPPFLAGS="$(echo $DEFINES $INCLUDES)"
 
 %configure \
 	CC="%{__cc}" \
