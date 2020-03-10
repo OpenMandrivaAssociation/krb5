@@ -1,11 +1,0 @@
---2019-12-06 11:14:01--  http://svnweb.mageia.org/packages/cauldron/krb5/current/SOURCES/Address-some-optimized-out-memset-calls.patch?revision=1356976
-Translacja svnweb.mageia.org... 212.85.158.151, 2a02:2178:2:7::7
-Łączenie się z svnweb.mageia.org|212.85.158.151|:80... połączono.
-Żądanie HTTP wysłano, oczekiwanie na odpowiedź... 200 OK
-Długość: nieznana [text/plain]
-Zapis do: `Address-some-optimized-out-memset-calls.patch?revision=1356976'
-
-                          Address-some-optimized-out     [<=>                                                                                                                  ]       0  --.-KB/s               Address-some-optimized-out-memset-calls.patch?revisi     [ <=>                                                                                                                 ]   3,76K  --.-KB/s     w 0s      
-
-2019-12-06 11:14:03 (145 MB/s) - zapisano `Address-some-optimized-out-memset-calls.patch?revision=1356976' [3850]
-
