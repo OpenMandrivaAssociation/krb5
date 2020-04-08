@@ -21,7 +21,7 @@
 %define rad_major 0
 %define libnamerad %mklibname krad %{rad_major}
 
-%define mit_major 11
+%define mit_major 12
 %define libkadm5clnt_mit %mklibname kadm5clnt_mit %{mit_major}
 %define libkadm5srv_mit %mklibname kadm5srv_mit %{mit_major}
 
@@ -31,7 +31,7 @@
 %define gssrpc_major 4
 %define libgssrpc %mklibname gssrpc %{gssrpc_major}
 
-%define kdb5_major 9
+%define kdb5_major 10
 %define libkdb5 %mklibname kdb5_ %{kdb5_major}
 
 %define ldap_major 1
@@ -45,8 +45,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.16.3
-Release:	2
+Version:	1.18
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -76,18 +76,14 @@ Source35:	kdb_check_weak.c
 Source40:	%{name}.rpmlintrc
 
 Patch5:		krb5-1.10-ksu-access.patch
-Patch6:		krb5-1.12-ksu-path.patch
 Patch7:		krb5-1.16-clang.patch
-Patch12:	krb5-1.12-ktany.patch
 Patch16:	krb5-1.12-buildconf.patch
 Patch23:	krb5-1.3.1-dns.patch
 Patch39:	krb5-1.12-api.patch
 Patch60:	krb5-1.12.1-pam.patch
-Patch71:	krb5-1.13-dirsrv-accountlock.patch
 Patch75:	krb5-pkinit-debug.patch
 Patch86:	krb5-1.9-debuginfo.patch
 Patch107:	krb5-aarch64.patch
-Patch108:	krb5-1.12.2-python3.patch
 Patch109:	Address-some-optimized-out-memset-calls.patch
 
 BuildRequires:	bison
@@ -292,17 +288,13 @@ ln -s NOTICE LICENSE
 %patch60 -p1 -b .pam
 
 #patch5  -p1 -b .ksu-access
-%patch6  -p1 -b .ksu-path
 %patch7 -p1 -b .compile~
-%patch12 -p1 -b .ktany
 #patch16 -p1 -b .buildconf
 %patch23 -p1 -b .dns
 %patch39 -p1 -b .api
-%patch71 -p1 -b .dirsrv-accountlock
 #patch75 -p1 -b .pkinit-debug
 %patch86 -p1 -b .debuginfo
 #patch107 -p1 -b .aarch64
-%patch108 -p1 -b .py3
 
 sed -i s,^attributetype:,attributetypes:,g \
     src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif 
@@ -509,6 +501,7 @@ fi
 #%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
 %{_libdir}/krb5/plugins/preauth/otp.so
 %{_libdir}/krb5/plugins/preauth/test.so
+%{_libdir}/krb5/plugins/preauth/spake.so
 %{_libdir}/krb5/plugins/kdb/db2.so 
 %{_libdir}/krb5/plugins/tls/k5tls.so
 
