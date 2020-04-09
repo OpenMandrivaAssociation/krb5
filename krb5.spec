@@ -46,7 +46,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.18
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -135,7 +135,7 @@ Requires:	pkgconfig(ext2fs)
 %if !%{bootstrap}
 Requires:	%{libkdb_ldap} >= %{version}
 %endif
-Provides:	krb5-devel = %{version}-%{release}
+Provides:	krb5-devel = %{EVRD}
 Obsoletes:	%{_lib}krb53-devel
 
 %description -n %{develname}
@@ -196,7 +196,7 @@ This package contains the shared library krad for %{name}.
 %package -n %{libkadm5clnt_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit
 Group:		System/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description -n %{libkadm5clnt_mit}
@@ -205,7 +205,7 @@ This package contains the shared library kadm5clnt_mit for %{name}.
 %package -n %{libkadm5srv_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5srv_mit
 Group:		System/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{version}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description -n %{libkadm5srv_mit}
@@ -249,7 +249,7 @@ package).
 %package server-ldap
 Summary:	The LDAP storage plugin for the Kerberos 5 KDC
 Group:		System/Servers
-Requires:	%{name}-server >= %{version}-%{release}
+Requires:	%{name}-server >= %{version}
 
 %description server-ldap
 Kerberos is a network authentication system. The krb5-server package
