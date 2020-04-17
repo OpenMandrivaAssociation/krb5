@@ -46,7 +46,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.18.1
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -114,6 +114,9 @@ BuildRequires:	dejagnu
 BuildRequires:	openldap-devel
 %endif
 Conflicts:	%{_lib}krb53 < 1.9.2-3
+# (tpg) fix upgrade from older releases
+Provides:	krb5 = 1.16.3-2
+Provides:	krb5 = 1.16.3-1
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -196,7 +199,7 @@ This package contains the shared library krad for %{name}.
 %package -n %{libkadm5clnt_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit
 Group:		System/Libraries
-Requires:	%{name} = %{version}
+Requires:	%{name} >= %{version}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description -n %{libkadm5clnt_mit}
@@ -205,7 +208,7 @@ This package contains the shared library kadm5clnt_mit for %{name}.
 %package -n %{libkadm5srv_mit}
 Summary:	The shared library used by Kerberos 5 - kadm5srv_mit
 Group:		System/Libraries
-Requires:	%{name} = %{version}
+Requires:	%{name} >= %{version}
 Conflicts:	%{_lib}krb53 < 1.9.2-3
 
 %description -n %{libkadm5srv_mit}
