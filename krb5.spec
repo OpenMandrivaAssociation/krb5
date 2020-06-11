@@ -1,3 +1,8 @@
+# wine uses krb5
+%ifarch %{x86_64}
+%bcond_without compat32
+%endif
+
 %bcond_with crosscompile
 %bcond_with docs
 %if %{with crosscompile}
@@ -14,30 +19,41 @@
 %define major 3
 %define libname %mklibname %{name}_ %{major}
 %define libk5crypto %mklibname k5crypto %{major}
+%define lib32name %mklib32name %{name}_ %{major}
+%define lib32k5crypto %mklib32name k5crypto %{major}
 
 %define support_major 0
 %define libnamesupport %mklibname %{name}support %{support_major}
+%define lib32namesupport %mklib32name %{name}support %{support_major}
 
 %define rad_major 0
 %define libnamerad %mklibname krad %{rad_major}
+%define lib32namerad %mklib32name krad %{rad_major}
 
 %define mit_major 12
 %define libkadm5clnt_mit %mklibname kadm5clnt_mit %{mit_major}
 %define libkadm5srv_mit %mklibname kadm5srv_mit %{mit_major}
+%define lib32kadm5clnt_mit %mklib32name kadm5clnt_mit %{mit_major}
+%define lib32kadm5srv_mit %mklib32name kadm5srv_mit %{mit_major}
 
 %define gssapi_major 2
 %define libgssapi_krb5 %mklibname gssapi_%{name}_ %{gssapi_major}
+%define lib32gssapi_krb5 %mklib32name gssapi_%{name}_ %{gssapi_major}
 
 %define gssrpc_major 4
 %define libgssrpc %mklibname gssrpc %{gssrpc_major}
+%define lib32gssrpc %mklib32name gssrpc %{gssrpc_major}
 
 %define kdb5_major 10
 %define libkdb5 %mklibname kdb5_ %{kdb5_major}
+%define lib32kdb5 %mklib32name kdb5_ %{kdb5_major}
 
 %define ldap_major 1
 %define libkdb_ldap %mklibname kdb_ldap %{ldap_major}
+%define lib32kdb_ldap %mklib32name kdb_ldap %{ldap_major}
 
 %define develname %mklibname -d %{name}
+%define devel32name %mklib32name -d %{name}
 # enable checking after compile
 %define enable_check 0
 %{?_with_check: %global %enable_check 1}
@@ -45,8 +61,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.18.1
-Release:	2
+Version:	1.18.2
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -93,6 +109,7 @@ BuildRequires:	libtool
 BuildRequires:	keyutils-devel
 BuildRequires:	pam-devel
 BuildRequires:	python-sphinx
+BuildRequires:	lmdb-devel
 %ifarch riscv64
 BuildRequires:	atomic-devel
 %endif
@@ -114,6 +131,14 @@ BuildRequires:	dejagnu
 BuildRequires:	openldap-devel
 %endif
 Conflicts:	%{_lib}krb53 < 1.9.2-3
+%if %{with compat32}
+BuildRequires:	devel(libsystemd)
+BuildRequires:	devel(libncurses)
+BuildRequires:	devel(libssl)
+BuildRequires:	devel(libcom_err)
+BuildRequires:	devel(libss)
+BuildRequires:	devel(libncurses)
+%endif
 # (tpg) fix upgrade from older releases
 Provides:	krb5 = 1.16.3-2
 Provides:	krb5 = 1.16.3-1
@@ -284,6 +309,114 @@ package contains the PKINIT plugin, which uses OpenSSL to allow clients
 to obtain initial credentials from a KDC using a private key and a
 certificate.
 
+%if %{with compat32}
+%package -n libverto0
+Summary:	Verto library (32-bit)
+Group:		System/Libraries
+
+%description -n libverto0
+Verto library (32-bit)
+
+%files -n libverto0
+%{_prefix}/lib/libverto.so.0*
+
+%package -n %{devel32name}
+Summary:	Development files needed for compiling Kerberos 5 programs (32-bit)
+Group:		Development/Other
+Requires:	%{develname} = %{EVRD}
+Requires:	%{lib32name} >= %{version}
+Requires:	%{lib32gssapi_krb5} >= %{version}
+Requires:	%{lib32gssrpc} >= %{version}
+Requires:	%{lib32namesupport} >= %{version}
+Requires:	%{lib32kadm5clnt_mit} >= %{version}
+Requires:	%{lib32kadm5srv_mit} >= %{version}
+Requires:	%{lib32kdb5} >= %{version}
+Requires:	%{lib32namerad} >= %{version}
+Requires:	devel(libcom_err)
+Requires:	devel(libss)
+%if !%{bootstrap}
+Requires:	%{lib32kdb_ldap} >= %{version}
+%endif
+
+%description -n %{devel32name}
+Kerberos is a network authentication system.  The krb5-devel package
+contains the header files and libraries needed for compiling Kerberos
+5 programs. If you want to develop Kerberos-aware programs, you'll
+need to install this package.
+
+%package -n %{lib32name}
+Summary:	The shared library used by Kerberos 5 (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32name}
+This package contains the shared library for %{name}.
+
+%package -n %{lib32gssapi_krb5}
+Summary:	The shared library used by Kerberos 5 - gssapi_krb5 (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32gssapi_krb5}
+This package contains the shared library gssrpc for %{name}.
+
+%package -n %{lib32gssrpc}
+Summary:	The shared library used by Kerberos 5 - gssrpc (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32gssrpc}
+This package contains the shared library gssrpc for %{name}.
+
+%package -n %{lib32k5crypto}
+Summary:	The shared library used by Kerberos 5 - k5crypto (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32k5crypto}
+This package contains the shared library k5crypto for %{name}.
+
+%package -n %{lib32namesupport}
+Summary:	The shared library used by Kerberos 5 - krb5support (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32namesupport}
+This package contains the shared library krb5support for %{name}.
+
+%package -n %{lib32namerad}
+Summary:	The shared library used by Kerberos 5 - krad (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32namerad}
+This package contains the shared library krad for %{name}.
+
+%package -n %{lib32kadm5clnt_mit}
+Summary:	The shared library used by Kerberos 5 - kadm5clnt_mit (32-bit)
+Group:		System/Libraries
+Requires:	%{name} >= %{version}
+
+%description -n %{lib32kadm5clnt_mit}
+This package contains the shared library kadm5clnt_mit for %{name}.
+
+%package -n %{lib32kadm5srv_mit}
+Summary:	The shared library used by Kerberos 5 - kadm5srv_mit (32-bit)
+Group:		System/Libraries
+Requires:	%{name} >= %{version}
+
+%description -n %{lib32kadm5srv_mit}
+This package contains the shared library kadm5srv_mit for %{name}.
+
+%package -n %{lib32kdb5}
+Summary:	The shared library used by Kerberos 5 - kdb5 (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32kdb5}
+This package contains the shared library kdb5 for %{name}.
+
+%package -n %{lib32kdb_ldap}
+Summary:	The shared library used by Kerberos 5 - kdb_ldap (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32kdb_ldap}
+This package contains the shared library kdb_ldap for %{name}.
+%endif
+
 %prep
 %setup -q -a 23 -n krb5-%{version}
 ln -s NOTICE LICENSE
@@ -327,6 +460,31 @@ INCLUDES=-I%{_includedir}/et
 CFLAGS="$(echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC)"
 CPPFLAGS="$(echo $DEFINES $INCLUDES)"
 
+export CONFIGURE_TOP="$(pwd)"
+mkdir build32
+cd build32
+export krb5_cv_attr_constructor_destructor=yes
+export ac_cv_func_regcomp=yes
+export ac_cv_printf_positional=yes
+%configure32 \
+	--host=i686-openmandriva-linux-gnu \
+	--target=i686-openmandriva-linux-gnu \
+	--with-system-et \
+	--with-system-ss
+sed -i -e 's,/\* #undef CONSTRUCTOR_ATTR_WORKS \*/,#define CONSTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
+sed -i -e 's,/\* #undef DESTRUCTOR_ATTR_WORKS \*/,#define DESTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
+%make_build || :
+# Something regenerates autoconf.h in the middle of the build, so we have to patch it again
+sed -i -e 's,/\* #undef CONSTRUCTOR_ATTR_WORKS \*/,#define CONSTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
+sed -i -e 's,/\* #undef DESTRUCTOR_ATTR_WORKS \*/,#define DESTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
+%make_build
+unset krb5_cv_attr_constructor_destructor
+unset ac_cv_func_regcomp
+unset ac_cv_printf_positional
+cd ..
+
+mkdir build
+cd build
 %configure \
 	CC="%{__cc}" \
 	CFLAGS="$CFLAGS" \
@@ -353,7 +511,7 @@ cd -
 
 %if %{with docs}
 # Build the docs.
-make -C src/doc paths.py version.py
+make -C src/build/doc paths.py version.py
 cp src/doc/paths.py doc/
 mkdir -p build-man build-html build-pdf
 sphinx-build -a -b man   -t pathsubs doc build-man
@@ -370,6 +528,14 @@ make -C build-pdf
 # make check TMPDIR=%{_tmppath}
 
 %install
+%if %{with compat32}
+# 32-bit stuff...
+make -C src/build32 \
+    DESTDIR=%{buildroot} \
+    EXAMPLEDIR=%{_docdir}/%{develname}/examples\
+    install
+%endif
+
 
 # Sample KDC config files (bundled kdc.conf and kadm5.acl).
 install -d %{buildroot}%{_sysconfdir}/kerberos/krb5kdc
@@ -430,7 +596,7 @@ install -d %{buildroot}%{_libdir}/krb5/plugins/kdb
 install -d %{buildroot}%{_libdir}/krb5/plugins/authdata
 
 # The rest of the binaries, headers, libraries, and docs.
-make -C src \
+make -C src/build \
     DESTDIR=%{buildroot} \
     EXAMPLEDIR=%{_docdir}/%{develname}/examples\
     install
@@ -659,8 +825,62 @@ fi
 %files server-ldap
 %doc src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif
 %doc src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema
+%{_libdir}/krb5/plugins/kdb/klmdb.so
 %if !%{bootstrap}
 %{_libdir}/krb5/plugins/kdb/kldap.so
 %{_sbindir}/kdb5_ldap_util
 %{_mandir}/man8/kdb5_ldap_util.8*
+%endif
+
+%if %{with compat32}
+%files -n %{lib32gssapi_krb5}
+%{_prefix}/lib/libgssapi_krb5.so.%{gssapi_major}*
+
+%files -n %{lib32gssrpc}
+%{_prefix}/lib/libgssrpc.so.%{gssrpc_major}*
+
+%files -n %{lib32k5crypto}
+%{_prefix}/lib/libk5crypto.so.%{major}*
+
+%files -n %{lib32name}
+%{_prefix}/lib/libkrb5.so.%{major}*
+%{_prefix}/lib/krb5/plugins
+
+%files -n %{lib32namesupport}
+%{_prefix}/lib/libkrb5support.so.%{support_major}*
+
+%files -n %{lib32namerad}
+%{_prefix}/lib/libkrad.so.%{rad_major}*
+
+%files -n %{lib32kadm5clnt_mit}
+%{_prefix}/lib/libkadm5clnt_mit.so.%{mit_major}*
+
+%files -n %{lib32kadm5srv_mit}
+%{_prefix}/lib/libkadm5srv_mit.so.%{mit_major}*
+
+%files -n %{lib32kdb5}
+%{_prefix}/lib/libkdb5.so.%{kdb5_major}*
+
+%if !%{bootstrap}
+%files -n %{lib32kdb_ldap}
+%{_prefix}/lib/libkdb_ldap.so.%{ldap_major}*
+%endif
+
+%files -n %{devel32name}
+%{_prefix}/lib/libgssapi_krb5.so
+%{_prefix}/lib/libgssrpc.so
+%{_prefix}/lib/libk5crypto.so
+%{_prefix}/lib/libkadm5clnt.so
+%{_prefix}/lib/libkadm5clnt_mit.so
+%{_prefix}/lib/libkadm5srv.so
+%{_prefix}/lib/libkadm5srv_mit.so
+%{_prefix}/lib/libkdb5.so
+%{_prefix}/lib/libkrb5.so
+%{_prefix}/lib/libkrb5support.so
+%{_prefix}/lib/libkrad.so
+%{_prefix}/lib/libverto.so
+%if !%{bootstrap}
+%{_prefix}/lib/libkdb_ldap.so
+%endif
+%{_prefix}/lib/pkgconfig/*
 %endif
