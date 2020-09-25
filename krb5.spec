@@ -62,7 +62,7 @@
 Summary:	The Kerberos network authentication system
 Name:		krb5
 Version:	1.18.2
-Release:	1
+Release:	2
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -499,6 +499,9 @@ cd build
 	--with-system-ss \
 	--disable-static \
 	--disable-rpath \
+	--with-prng-alg=os \
+	--with-crypto-impl=openssl \
+	--with-tls-impl=openssl \
 %if !%{bootstrap}
 	--with-ldap \
 %endif
