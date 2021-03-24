@@ -1,0 +1,578 @@
+From 8c57937f3ca793fe3f8fdd636be0bc11c24069bc Mon Sep 17 00:00:00 2001
+From: Greg Hudson <ghudson@mit.edu>
+Date: Fri, 15 Jan 2021 13:51:34 -0500
+Subject: [PATCH] Support host-based GSS initiator names
+
+When checking if we can get initial credentials in the GSS krb5 mech,
+use krb5_kt_have_match() to support fallback iteration.  When scanning
+the ccache or getting initial credentials, rewrite cred->name->princ
+to the canonical client name.  When a name check is necessary (such as
+when the caller specifies both a name and ccache), use a new internal
+API k5_sname_compare() to support fallback iteration.  Add fallback
+iteration to krb5_cc_cache_match() to allow host-based names to be
+canonicalized against the cache collection.
+
+Create and store the matching principal for acceptor names in
+acquire_accept_cred() so that it isn't affected by changes in
+cred->name->princ during acquire_init_cred().
+
+ticket: 8978 (new)
+(cherry picked from commit c374ab40dd059a5938ffc0440d87457ac5da3a46)
+---
+ src/include/k5-int.h                     |  9 +++
+ src/include/k5-trace.h                   |  3 +
+ src/lib/gssapi/krb5/accept_sec_context.c | 15 +---
+ src/lib/gssapi/krb5/acquire_cred.c       | 89 ++++++++++++++----------
+ src/lib/gssapi/krb5/gssapiP_krb5.h       |  1 +
+ src/lib/gssapi/krb5/rel_cred.c           |  1 +
+ src/lib/krb5/ccache/cccursor.c           | 57 +++++++++++----
+ src/lib/krb5/libkrb5.exports             |  1 +
+ src/lib/krb5/os/sn2princ.c               | 23 +++++-
+ src/lib/krb5_32.def                      |  1 +
+ src/tests/gssapi/t_client_keytab.py      | 44 ++++++++++++
+ src/tests/gssapi/t_credstore.py          | 32 +++++++++
+ 12 files changed, 214 insertions(+), 62 deletions(-)
+
+diff --git a/src/include/k5-int.h b/src/include/k5-int.h
+index efb523689..46f2ce2d3 100644
+--- a/src/include/k5-int.h
++++ b/src/include/k5-int.h
+@@ -2411,4 +2411,13 @@ void k5_change_error_message_code(krb5_context ctx, krb5_error_code oldcode,
+ #define k5_prependmsg krb5_prepend_error_message
+ #define k5_wrapmsg krb5_wrap_error_message
+ 
++/*
++ * Like krb5_principal_compare(), but with canonicalization of sname if
++ * fallback is enabled.  This function should be avoided if multiple matches
++ * are required, since repeated canonicalization is inefficient.
++ */
++krb5_boolean
++k5_sname_compare(krb5_context context, krb5_const_principal sname,
++                 krb5_const_principal princ);
++
+ #endif /* _KRB5_INT_H */
+diff --git a/src/include/k5-trace.h b/src/include/k5-trace.h
+index b3e039dc8..79b5a7a85 100644
+--- a/src/include/k5-trace.h
++++ b/src/include/k5-trace.h
+@@ -105,6 +105,9 @@ void krb5int_trace(krb5_context context, const char *fmt, ...);
+ 
+ #endif /* DISABLE_TRACING */
+ 
++#define TRACE_CC_CACHE_MATCH(c, princ, ret)                             \
++    TRACE(c, "Matching {princ} in collection with result: {kerr}",      \
++          princ, ret)
+ #define TRACE_CC_DESTROY(c, cache)                      \
+     TRACE(c, "Destroying ccache {ccache}", cache)
+ #define TRACE_CC_GEN_NEW(c, cache)                                      \
+diff --git a/src/lib/gssapi/krb5/accept_sec_context.c b/src/lib/gssapi/krb5/accept_sec_context.c
+index fcf2c2152..a1d7e0d96 100644
+--- a/src/lib/gssapi/krb5/accept_sec_context.c
++++ b/src/lib/gssapi/krb5/accept_sec_context.c
+@@ -683,7 +683,6 @@ kg_accept_krb5(minor_status, context_handle,
+     krb5_flags ap_req_options = 0;
+     krb5_enctype negotiated_etype;
+     krb5_authdata_context ad_context = NULL;
+-    krb5_principal accprinc = NULL;
+     krb5_ap_req *request = NULL;
+ 
+     code = krb5int_accessor (&kaccess, KRB5INT_ACCESS_VERSION);
+@@ -849,17 +848,9 @@ kg_accept_krb5(minor_status, context_handle,
+         }
+     }
+ 
+-    if (!cred->default_identity) {
+-        if ((code = kg_acceptor_princ(context, cred->name, &accprinc))) {
+-            major_status = GSS_S_FAILURE;
+-            goto fail;
+-        }
+-    }
+-
+-    code = krb5_rd_req_decoded(context, &auth_context, request, accprinc,
+-                               cred->keytab, &ap_req_options, NULL);
+-
+-    krb5_free_principal(context, accprinc);
++    code = krb5_rd_req_decoded(context, &auth_context, request,
++                               cred->acceptor_mprinc, cred->keytab,
++                               &ap_req_options, NULL);
+     if (code) {
+         major_status = GSS_S_FAILURE;
+         goto fail;
+diff --git a/src/lib/gssapi/krb5/acquire_cred.c b/src/lib/gssapi/krb5/acquire_cred.c
+index 632ee7def..e226a0269 100644
+--- a/src/lib/gssapi/krb5/acquire_cred.c
++++ b/src/lib/gssapi/krb5/acquire_cred.c
+@@ -123,11 +123,11 @@ gss_krb5int_register_acceptor_identity(OM_uint32 *minor_status,
+ /* Try to verify that keytab contains at least one entry for name.  Return 0 if
+  * it does, KRB5_KT_NOTFOUND if it doesn't, or another error as appropriate. */
+ static krb5_error_code
+-check_keytab(krb5_context context, krb5_keytab kt, krb5_gss_name_t name)
++check_keytab(krb5_context context, krb5_keytab kt, krb5_gss_name_t name,
++             krb5_principal mprinc)
+ {
+     krb5_error_code code;
+     krb5_keytab_entry ent;
+-    krb5_principal accprinc = NULL;
+     char *princname;
+ 
+     if (name->service == NULL) {
+@@ -141,21 +141,15 @@ check_keytab(krb5_context context, krb5_keytab kt, krb5_gss_name_t name)
+     if (kt->ops->start_seq_get == NULL)
+         return 0;
+ 
+-    /* Get the partial principal for the acceptor name. */
+-    code = kg_acceptor_princ(context, name, &accprinc);
+-    if (code)
+-        return code;
+-
+-    /* Scan the keytab for host-based entries matching accprinc. */
+-    code = k5_kt_have_match(context, kt, accprinc);
++    /* Scan the keytab for host-based entries matching mprinc. */
++    code = k5_kt_have_match(context, kt, mprinc);
+     if (code == KRB5_KT_NOTFOUND) {
+-        if (krb5_unparse_name(context, accprinc, &princname) == 0) {
++        if (krb5_unparse_name(context, mprinc, &princname) == 0) {
+             k5_setmsg(context, code, _("No key table entry found matching %s"),
+                       princname);
+             free(princname);
+         }
+     }
+-    krb5_free_principal(context, accprinc);
+     return code;
+ }
+ 
+@@ -202,8 +196,14 @@ acquire_accept_cred(krb5_context context, OM_uint32 *minor_status,
+     }
+ 
+     if (cred->name != NULL) {
++        code = kg_acceptor_princ(context, cred->name, &cred->acceptor_mprinc);
++        if (code) {
++            major = GSS_S_FAILURE;
++            goto cleanup;
++        }
++
+         /* Make sure we have keys matching the desired name in the keytab. */
+-        code = check_keytab(context, kt, cred->name);
++        code = check_keytab(context, kt, cred->name, cred->acceptor_mprinc);
+         if (code) {
+             if (code == KRB5_KT_NOTFOUND) {
+                 k5_change_error_message_code(context, code, KG_KEYTAB_NOMATCH);
+@@ -324,7 +324,6 @@ static krb5_boolean
+ can_get_initial_creds(krb5_context context, krb5_gss_cred_id_rec *cred)
+ {
+     krb5_error_code code;
+-    krb5_keytab_entry entry;
+ 
+     if (cred->password != NULL)
+         return TRUE;
+@@ -336,20 +335,21 @@ can_get_initial_creds(krb5_context context, krb5_gss_cred_id_rec *cred)
+     if (cred->name == NULL)
+         return !krb5_kt_have_content(context, cred->client_keytab);
+ 
+-    /* Check if we have a keytab key for the client principal. */
+-    code = krb5_kt_get_entry(context, cred->client_keytab, cred->name->princ,
+-                             0, 0, &entry);
+-    if (code) {
+-        krb5_clear_error_message(context);
+-        return FALSE;
+-    }
+-    krb5_free_keytab_entry_contents(context, &entry);
+-    return TRUE;
++    /*
++     * Check if we have a keytab key for the client principal.  This is a bit
++     * more permissive than we really want because krb5_kt_have_match()
++     * supports wildcarding and obeys ignore_acceptor_hostname, but that should
++     * generally be harmless.
++     */
++    code = k5_kt_have_match(context, cred->client_keytab, cred->name->princ);
++    return code == 0;
+ }
+ 
+-/* Scan cred->ccache for name, expiry time, impersonator, refresh time. */
++/* Scan cred->ccache for name, expiry time, impersonator, refresh time.  If
++ * check_name is true, verify the cache name against the credential name. */
+ static krb5_error_code
+-scan_ccache(krb5_context context, krb5_gss_cred_id_rec *cred)
++scan_ccache(krb5_context context, krb5_gss_cred_id_rec *cred,
++            krb5_boolean check_name)
+ {
+     krb5_error_code code;
+     krb5_ccache ccache = cred->ccache;
+@@ -365,23 +365,31 @@ scan_ccache(krb5_context context, krb5_gss_cred_id_rec *cred)
+     if (code)
+         return code;
+ 
+-    /* Credentials cache principal must match the initiator name. */
+     code = krb5_cc_get_principal(context, ccache, &ccache_princ);
+     if (code != 0)
+         goto cleanup;
+-    if (cred->name != NULL &&
+-        !krb5_principal_compare(context, ccache_princ, cred->name->princ)) {
+-        code = KG_CCACHE_NOMATCH;
+-        goto cleanup;
+-    }
+ 
+-    /* Save the ccache principal as the credential name if not already set. */
+-    if (!cred->name) {
++    if (cred->name == NULL) {
++        /* Save the ccache principal as the credential name. */
+         code = kg_init_name(context, ccache_princ, NULL, NULL, NULL,
+                             KG_INIT_NAME_NO_COPY, &cred->name);
+         if (code)
+             goto cleanup;
+         ccache_princ = NULL;
++    } else {
++        /* Check against the desired name if needed. */
++        if (check_name) {
++            if (!k5_sname_compare(context, cred->name->princ, ccache_princ)) {
++                code = KG_CCACHE_NOMATCH;
++                goto cleanup;
++            }
++        }
++
++        /* Replace the credential name principal with the canonical client
++         * principal, retaining acceptor_mprinc if set. */
++        krb5_free_principal(context, cred->name->princ);
++        cred->name->princ = ccache_princ;
++        ccache_princ = NULL;
+     }
+ 
+     assert(cred->name->princ != NULL);
+@@ -447,7 +455,7 @@ get_cache_for_name(krb5_context context, krb5_gss_cred_id_rec *cred)
+     assert(cred->name != NULL && cred->ccache == NULL);
+ #ifdef USE_LEASH
+     code = get_ccache_leash(context, cred->name->princ, &cred->ccache);
+-    return code ? code : scan_ccache(context, cred);
++    return code ? code : scan_ccache(context, cred, TRUE);
+ #else
+     /* Check first whether we can acquire tickets, to avoid overwriting the
+      * extended error message from krb5_cc_cache_match. */
+@@ -456,7 +464,7 @@ get_cache_for_name(krb5_context context, krb5_gss_cred_id_rec *cred)
+     /* Look for an existing cache for the client principal. */
+     code = krb5_cc_cache_match(context, cred->name->princ, &cred->ccache);
+     if (code == 0)
+-        return scan_ccache(context, cred);
++        return scan_ccache(context, cred, FALSE);
+     if (code != KRB5_CC_NOTFOUND || !can_get)
+         return code;
+     krb5_clear_error_message(context);
+@@ -633,6 +641,13 @@ get_initial_cred(krb5_context context, const struct verify_params *verify,
+     kg_cred_set_initial_refresh(context, cred, &creds.times);
+     cred->have_tgt = TRUE;
+     cred->expire = creds.times.endtime;
++
++    /* Steal the canonical client principal name from creds and save it in the
++     * credential name, retaining acceptor_mprinc if set. */
++    krb5_free_principal(context, cred->name->princ);
++    cred->name->princ = creds.client;
++    creds.client = NULL;
++
+     krb5_free_cred_contents(context, &creds);
+ cleanup:
+     krb5_get_init_creds_opt_free(context, opt);
+@@ -721,7 +736,7 @@ acquire_init_cred(krb5_context context, OM_uint32 *minor_status,
+ 
+     if (cred->ccache != NULL) {
+         /* The caller specified a ccache; check what's in it. */
+-        code = scan_ccache(context, cred);
++        code = scan_ccache(context, cred, TRUE);
+         if (code == KRB5_FCC_NOFILE) {
+             /* See if we can get initial creds.  If the caller didn't specify
+              * a name, pick one from the client keytab. */
+@@ -984,7 +999,7 @@ kg_cred_resolve(OM_uint32 *minor_status, krb5_context context,
+             }
+         }
+         if (cred->ccache != NULL) {
+-            code = scan_ccache(context, cred);
++            code = scan_ccache(context, cred, FALSE);
+             if (code)
+                 goto kerr;
+         }
+@@ -996,7 +1011,7 @@ kg_cred_resolve(OM_uint32 *minor_status, krb5_context context,
+         code = krb5int_cc_default(context, &cred->ccache);
+         if (code)
+             goto kerr;
+-        code = scan_ccache(context, cred);
++        code = scan_ccache(context, cred, FALSE);
+         if (code == KRB5_FCC_NOFILE) {
+             /* Default ccache doesn't exist; fall through to client keytab. */
+             krb5_cc_close(context, cred->ccache);
+diff --git a/src/lib/gssapi/krb5/gssapiP_krb5.h b/src/lib/gssapi/krb5/gssapiP_krb5.h
+index 3bacdcd35..fd7abbd77 100644
+--- a/src/lib/gssapi/krb5/gssapiP_krb5.h
++++ b/src/lib/gssapi/krb5/gssapiP_krb5.h
+@@ -175,6 +175,7 @@ typedef struct _krb5_gss_cred_id_rec {
+     /* name/type of credential */
+     gss_cred_usage_t usage;
+     krb5_gss_name_t name;
++    krb5_principal acceptor_mprinc;
+     krb5_principal impersonator;
+     unsigned int default_identity : 1;
+     unsigned int iakerb_mech : 1;
+diff --git a/src/lib/gssapi/krb5/rel_cred.c b/src/lib/gssapi/krb5/rel_cred.c
+index a9515daf7..0da6c1b95 100644
+--- a/src/lib/gssapi/krb5/rel_cred.c
++++ b/src/lib/gssapi/krb5/rel_cred.c
+@@ -72,6 +72,7 @@ krb5_gss_release_cred(minor_status, cred_handle)
+     if (cred->name)
+         kg_release_name(context, &cred->name);
+ 
++    krb5_free_principal(context, cred->acceptor_mprinc);
+     krb5_free_principal(context, cred->impersonator);
+ 
+     if (cred->req_enctypes)
+diff --git a/src/lib/krb5/ccache/cccursor.c b/src/lib/krb5/ccache/cccursor.c
+index 8f5872116..760216d05 100644
+--- a/src/lib/krb5/ccache/cccursor.c
++++ b/src/lib/krb5/ccache/cccursor.c
+@@ -30,6 +30,7 @@
+ 
+ #include "cc-int.h"
+ #include "../krb/int-proto.h"
++#include "../os/os-proto.h"
+ 
+ #include <assert.h>
+ 
+@@ -141,18 +142,18 @@ krb5_cccol_cursor_free(krb5_context context,
+     return 0;
+ }
+ 
+-krb5_error_code KRB5_CALLCONV
+-krb5_cc_cache_match(krb5_context context, krb5_principal client,
+-                    krb5_ccache *cache_out)
++static krb5_error_code
++match_caches(krb5_context context, krb5_const_principal client,
++             krb5_ccache *cache_out)
+ {
+     krb5_error_code ret;
+     krb5_cccol_cursor cursor;
+     krb5_ccache cache = NULL;
+     krb5_principal princ;
+-    char *name;
+     krb5_boolean eq;
+ 
+     *cache_out = NULL;
++
+     ret = krb5_cccol_cursor_new(context, &cursor);
+     if (ret)
+         return ret;
+@@ -169,20 +170,52 @@ krb5_cc_cache_match(krb5_context context, krb5_principal client,
+         krb5_cc_close(context, cache);
+     }
+     krb5_cccol_cursor_free(context, &cursor);
++
+     if (ret)
+         return ret;
+-    if (cache == NULL) {
+-        ret = krb5_unparse_name(context, client, &name);
+-        if (ret == 0) {
+-            k5_setmsg(context, KRB5_CC_NOTFOUND,
++    if (cache == NULL)
++        return KRB5_CC_NOTFOUND;
++
++    *cache_out = cache;
++    return 0;
++}
++
++krb5_error_code KRB5_CALLCONV
++krb5_cc_cache_match(krb5_context context, krb5_principal client,
++                    krb5_ccache *cache_out)
++{
++    krb5_error_code ret;
++    struct canonprinc iter = { client, .subst_defrealm = TRUE };
++    krb5_const_principal canonprinc = NULL;
++    krb5_ccache cache = NULL;
++    char *name;
++
++    *cache_out = NULL;
++
++    while ((ret = k5_canonprinc(context, &iter, &canonprinc)) == 0 &&
++           canonprinc != NULL) {
++        ret = match_caches(context, canonprinc, &cache);
++        if (ret != KRB5_CC_NOTFOUND)
++            break;
++    }
++    free_canonprinc(&iter);
++
++    if (ret == 0 && canonprinc == NULL) {
++        ret = KRB5_CC_NOTFOUND;
++        if (krb5_unparse_name(context, client, &name) == 0) {
++            k5_setmsg(context, ret,
+                       _("Can't find client principal %s in cache collection"),
+                       name);
+             krb5_free_unparsed_name(context, name);
+         }
+-        ret = KRB5_CC_NOTFOUND;
+-    } else
+-        *cache_out = cache;
+-    return ret;
++    }
++
++    TRACE_CC_CACHE_MATCH(context, client, ret);
++    if (ret)
++        return ret;
++
++    *cache_out = cache;
++    return 0;
+ }
+ 
+ /* Store the error state for code from context into errsave, but only if code
+diff --git a/src/lib/krb5/libkrb5.exports b/src/lib/krb5/libkrb5.exports
+index adbfa332b..df6e2ffbe 100644
+--- a/src/lib/krb5/libkrb5.exports
++++ b/src/lib/krb5/libkrb5.exports
+@@ -181,6 +181,7 @@ k5_size_authdata_context
+ k5_size_context
+ k5_size_keyblock
+ k5_size_principal
++k5_sname_compare
+ k5_unmarshal_cred
+ k5_unmarshal_princ
+ k5_unwrap_cammac_svc
+diff --git a/src/lib/krb5/os/sn2princ.c b/src/lib/krb5/os/sn2princ.c
+index 8b7214189..c99b7da17 100644
+--- a/src/lib/krb5/os/sn2princ.c
++++ b/src/lib/krb5/os/sn2princ.c
+@@ -277,7 +277,8 @@ k5_canonprinc(krb5_context context, struct canonprinc *iter,
+ 
+     /* If we're not doing fallback, the input principal is canonical. */
+     if (context->dns_canonicalize_hostname != CANONHOST_FALLBACK ||
+-        iter->princ->type != KRB5_NT_SRV_HST || iter->princ->length != 2) {
++        iter->princ->type != KRB5_NT_SRV_HST || iter->princ->length != 2 ||
++        iter->princ->data[1].length == 0) {
+         *princ_out = (step == 1) ? iter->princ : NULL;
+         return 0;
+     }
+@@ -288,6 +289,26 @@ k5_canonprinc(krb5_context context, struct canonprinc *iter,
+     return canonicalize_princ(context, iter, step == 2, princ_out);
+ }
+ 
++krb5_boolean
++k5_sname_compare(krb5_context context, krb5_const_principal sname,
++                 krb5_const_principal princ)
++{
++    krb5_error_code ret;
++    struct canonprinc iter = { sname, .subst_defrealm = TRUE };
++    krb5_const_principal canonprinc = NULL;
++    krb5_boolean match = FALSE;
++
++    while ((ret = k5_canonprinc(context, &iter, &canonprinc)) == 0 &&
++           canonprinc != NULL) {
++        if (krb5_principal_compare(context, canonprinc, princ)) {
++            match = TRUE;
++            break;
++        }
++    }
++    free_canonprinc(&iter);
++    return match;
++}
++
+ krb5_error_code KRB5_CALLCONV
+ krb5_sname_to_principal(krb5_context context, const char *hostname,
+                         const char *sname, krb5_int32 type,
+diff --git a/src/lib/krb5_32.def b/src/lib/krb5_32.def
+index 60b8dd311..cf690dbe4 100644
+--- a/src/lib/krb5_32.def
++++ b/src/lib/krb5_32.def
+@@ -507,3 +507,4 @@ EXPORTS
+ ; new in 1.20
+ 	krb5_marshal_credentials			@472
+ 	krb5_unmarshal_credentials			@473
++	k5_sname_compare				@474 ; PRIVATE GSSAPI
+diff --git a/src/tests/gssapi/t_client_keytab.py b/src/tests/gssapi/t_client_keytab.py
+index 7847b3ecd..9a61d53b8 100755
+--- a/src/tests/gssapi/t_client_keytab.py
++++ b/src/tests/gssapi/t_client_keytab.py
+@@ -141,5 +141,49 @@ msgs = ('Getting initial credentials for user/admin@KRBTEST.COM',
+         '/Matching credential not found')
+ realm.run(['./t_ccselect', phost], expected_code=1,
+           expected_msg='Ticket expired', expected_trace=msgs)
++realm.run([kdestroy, '-A'])
++
++# Test 19: host-based initiator name
++mark('host-based initiator name')
++hsvc = 'h:svc@' + hostname
++svcprinc = 'svc/%s@%s' % (hostname, realm.realm)
++realm.addprinc(svcprinc)
++realm.extract_keytab(svcprinc, realm.client_keytab)
++# On the first run we match against the keytab while getting tickets,
++# substituting the default realm.
++msgs = ('/Can\'t find client principal svc/%s@ in' % hostname,
++        'Getting initial credentials for svc/%s@' % hostname,
++        'Found entries for %s in keytab' % svcprinc,
++        'Retrieving %s from FILE:%s' % (svcprinc, realm.client_keytab),
++        'Storing %s -> %s in' % (svcprinc, realm.krbtgt_princ),
++        'Retrieving %s -> %s from' % (svcprinc, realm.krbtgt_princ),
++        'authenticator for %s -> %s' % (svcprinc, realm.host_princ))
++realm.run(['./t_ccselect', phost, hsvc], expected_trace=msgs)
++# On the second run we match against the collection.
++msgs = ('Matching svc/%s@ in collection with result: 0' % hostname,
++        'Getting credentials %s -> %s' % (svcprinc, realm.host_princ),
++        'authenticator for %s -> %s' % (svcprinc, realm.host_princ))
++realm.run(['./t_ccselect', phost, hsvc], expected_trace=msgs)
++realm.run([kdestroy, '-A'])
++
++# Test 20: host-based initiator name with fallback
++mark('host-based fallback initiator name')
++canonname = canonicalize_hostname(hostname)
++if canonname != hostname:
++    hfsvc = 'h:fsvc@' + hostname
++    canonprinc = 'fsvc/%s@%s' % (canonname, realm.realm)
++    realm.addprinc(canonprinc)
++    realm.extract_keytab(canonprinc, realm.client_keytab)
++    msgs = ('/Can\'t find client principal fsvc/%s@ in' % hostname,
++            'Found entries for %s in keytab' % canonprinc,
++            'authenticator for %s -> %s' % (canonprinc, realm.host_princ))
++    realm.run(['./t_ccselect', phost, hfsvc], expected_trace=msgs)
++    msgs = ('Matching fsvc/%s@ in collection with result: 0' % hostname,
++            'Getting credentials %s -> %s' % (canonprinc, realm.host_princ))
++    realm.run(['./t_ccselect', phost, hfsvc], expected_trace=msgs)
++    realm.run([kdestroy, '-A'])
++else:
++    skipped('GSS initiator name fallback test',
++            '%s does not canonicalize to a different name' % hostname)
+ 
+ success('Client keytab tests')
+diff --git a/src/tests/gssapi/t_credstore.py b/src/tests/gssapi/t_credstore.py
+index c11975bf5..9be57bb82 100644
+--- a/src/tests/gssapi/t_credstore.py
++++ b/src/tests/gssapi/t_credstore.py
+@@ -15,6 +15,38 @@ msgs = ('Storing %s -> %s in %s' % (service_cs, realm.krbtgt_princ,
+ realm.run(['./t_credstore', '-s', 'p:' + service_cs, 'ccache', storagecache,
+            'keytab', servicekeytab], expected_trace=msgs)
+ 
++mark('matching')
++scc = 'FILE:' + os.path.join(realm.testdir, 'service_cache')
++realm.kinit(realm.host_princ, flags=['-k', '-c', scc])
++realm.run(['./t_credstore', '-i', 'p:' + realm.host_princ, 'ccache', scc])
++realm.run(['./t_credstore', '-i', 'h:host', 'ccache', scc])
++realm.run(['./t_credstore', '-i', 'h:host@' + hostname, 'ccache', scc])
++realm.run(['./t_credstore', '-i', 'p:wrong', 'ccache', scc],
++          expected_code=1, expected_msg='does not match desired name')
++realm.run(['./t_credstore', '-i', 'h:host@-nomatch-', 'ccache', scc],
++          expected_code=1, expected_msg='does not match desired name')
++realm.run(['./t_credstore', '-i', 'h:svc', 'ccache', scc],
++          expected_code=1, expected_msg='does not match desired name')
++
++mark('matching (fallback)')
++canonname = canonicalize_hostname(hostname)
++if canonname != hostname:
++    canonprinc = 'host/%s@%s' % (canonname, realm.realm)
++    realm.addprinc(canonprinc)
++    realm.extract_keytab(canonprinc, realm.keytab)
++    realm.kinit(canonprinc, flags=['-k', '-c', scc])
++    realm.run(['./t_credstore', '-i', 'h:host', 'ccache', scc])
++    realm.run(['./t_credstore', '-i', 'h:host@' + hostname, 'ccache', scc])
++    realm.run(['./t_credstore', '-i', 'h:host@' + canonname, 'ccache', scc])
++    realm.run(['./t_credstore', '-i', 'p:' + canonprinc, 'ccache', scc])
++    realm.run(['./t_credstore', '-i', 'p:' + realm.host_princ, 'ccache', scc],
++              expected_code=1, expected_msg='does not match desired name')
++    realm.run(['./t_credstore', '-i', 'h:host@-nomatch-', 'ccache', scc],
++              expected_code=1, expected_msg='does not match desired name')
++else:
++    skipped('fallback matching test',
++            '%s does not canonicalize to a different name' % hostname)
++
+ mark('rcache')
+ # t_credstore -r should produce a replay error normally, but not with
+ # rcache set to "none:".

@@ -1,0 +1,84 @@
+From d898d94cef8e1a8772a91cd3a62255c33f109636 Mon Sep 17 00:00:00 2001
+From: Greg Hudson <ghudson@mit.edu>
+Date: Fri, 15 Jan 2021 14:43:34 -0500
+Subject: [PATCH] Add hostname canonicalization helper to k5test.py
+
+To facilitate fallback tests, add a canonicalize_hostname() function
+to k5test.py which works similarly to krb5_expand_hostname().  Use it
+in t_gssapi.py for the recently-added acceptor name fallback test.
+
+(cherry picked from commit 225fffe4e912772acea3a01d45bafb60bfb80948)
+---
+ src/tests/gssapi/t_gssapi.py | 11 +++--------
+ src/util/k5test.py           | 22 ++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 8 deletions(-)
+
+diff --git a/src/tests/gssapi/t_gssapi.py b/src/tests/gssapi/t_gssapi.py
+index 1af6f31c2..e22cec427 100755
+--- a/src/tests/gssapi/t_gssapi.py
++++ b/src/tests/gssapi/t_gssapi.py
+@@ -8,7 +8,7 @@ for realm in multipass_realms():
+     realm.run(['./t_iov', '-s', 'p:' + realm.host_princ])
+     realm.run(['./t_pcontok', 'p:' + realm.host_princ])
+ 
+-realm = K5Realm(krb5_conf={'libdefaults': {'rdns': 'false'}})
++realm = K5Realm()
+ 
+ # Test gss_add_cred().
+ realm.run(['./t_add_cred'])
+@@ -62,13 +62,8 @@ realm.run(['./t_accname', 'p:host/-nomatch-',
+           expected_msg=' not found in keytab')
+ 
+ # If possible, test with an acceptor name requiring fallback to match
+-# against a keytab entry.  Forward-canonicalize the hostname, relying
+-# on the rdns=false realm setting.
+-try:
+-    ai = socket.getaddrinfo(hostname, None, 0, 0, 0, socket.AI_CANONNAME)
+-    (family, socktype, proto, canonname, sockaddr) = ai[0]
+-except socket.gaierror:
+-    canonname = hostname
++# against a keytab entry.
++canonname = canonicalize_hostname(hostname)
+ if canonname != hostname:
+     os.rename(realm.keytab, realm.keytab + '.save')
+     canonprinc = 'host/' + canonname
+diff --git a/src/util/k5test.py b/src/util/k5test.py
+index 789b0f4b9..251d11a9d 100644
+--- a/src/util/k5test.py
++++ b/src/util/k5test.py
+@@ -155,6 +155,10 @@ Scripts may use the following functions and variables:
+ * password(name): Return a weakly random password based on name.  The
+   password will be consistent across calls with the same name.
+ 
++* canonicalize_hostname(name, rdns=True): Return the DNS
++  canonicalization of name, optionally using reverse DNS.  On error,
++  return name converted to lowercase.
++
+ * stop_daemon(proc): Stop a daemon process started with
+   realm.start_server() or realm.start_in_inetd().  Only necessary if
+   the port needs to be reused; daemon processes will be stopped
+@@ -458,6 +462,24 @@ def password(name):
+     return name + str(os.getpid())
+ 
+ 
++def canonicalize_hostname(name, rdns=True):
++    """Canonicalize name using DNS, optionally with reverse DNS."""
++    try:
++        ai = socket.getaddrinfo(name, None, 0, 0, 0, socket.AI_CANONNAME)
++    except socket.gaierror as e:
++        return name.lower()
++    (family, socktype, proto, canonname, sockaddr) = ai[0]
++
++    if not rdns:
++        return canonname.lower()
++
++    try:
++        rname = socket.getnameinfo(sockaddr, socket.NI_NAMEREQD)
++    except socket.gaierror:
++        return canonname.lower()
++    return rname[0].lower()
++
++
+ # Exit handler which ensures processes are cleaned up and, on failure,
+ # prints messages to help developers debug the problem.
+ def _onexit():

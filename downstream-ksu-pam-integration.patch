@@ -1,10 +1,43 @@
-diff -up krb5-1.18/src/aclocal.m4.pam krb5-1.18/src/aclocal.m4
---- krb5-1.18/src/aclocal.m4.pam	2020-04-08 18:13:01.564201349 +0200
-+++ krb5-1.18/src/aclocal.m4	2020-04-08 18:15:08.676839612 +0200
-@@ -1675,3 +1675,70 @@ if test "$with_ldap" = yes; then
+From 90ba715be48c2e1b6c7ca53cb1d75f3af2c388d6 Mon Sep 17 00:00:00 2001
+From: Robbie Harwood <rharwood@redhat.com>
+Date: Tue, 23 Aug 2016 16:29:58 -0400
+Subject: [PATCH] [downstream] ksu pam integration
+
+Modify ksu so that it performs account and session management on behalf of
+the target user account, mimicking the action of regular su.  The default
+service name is "ksu", because on Fedora at least the configuration used
+is determined by whether or not a login shell is being opened, and so
+this may need to vary, too.  At run-time, ksu's behavior can be reset to
+the earlier, non-PAM behavior by setting "use_pam" to false in the [ksu]
+section of /etc/krb5.conf.
+
+When enabled, ksu gains a dependency on libpam.
+
+Originally RT#5939, though it's changed since then to perform the account
+and session management before dropping privileges, and to apply on top of
+changes we're proposing for how it handles cache collections.
+
+Last-updated: krb5-1.18-beta1
+---
+ src/aclocal.m4              |  69 +++++++
+ src/clients/ksu/Makefile.in |   8 +-
+ src/clients/ksu/main.c      |  88 +++++++-
+ src/clients/ksu/pam.c       | 389 ++++++++++++++++++++++++++++++++++++
+ src/clients/ksu/pam.h       |  57 ++++++
+ src/configure.ac            |   2 +
+ 6 files changed, 610 insertions(+), 3 deletions(-)
+ create mode 100644 src/clients/ksu/pam.c
+ create mode 100644 src/clients/ksu/pam.h
+
+diff --git a/src/aclocal.m4 b/src/aclocal.m4
+index 024d6370c..ca9fcf664 100644
+--- a/src/aclocal.m4
++++ b/src/aclocal.m4
+@@ -1677,3 +1677,72 @@ if test "$with_ldap" = yes; then
    OPENLDAP_PLUGIN=yes
  fi
  ])dnl
++dnl
 +dnl
 +dnl Use PAM instead of local crypt() compare for checking local passwords,
 +dnl and perform PAM account, session management, and password-changing where
@@ -72,11 +105,51 @@ diff -up krb5-1.18/src/aclocal.m4.pam krb5-1.18/src/aclocal.m4
 +AC_SUBST(PAM_MAN)
 +AC_SUBST(NON_PAM_MAN)
 +])dnl
-diff -up krb5-1.18/src/clients/ksu/main.c.pam krb5-1.18/src/clients/ksu/main.c
---- krb5-1.18/src/clients/ksu/main.c.pam	2020-02-12 18:21:58.000000000 +0100
-+++ krb5-1.18/src/clients/ksu/main.c	2020-04-08 18:13:01.565201377 +0200
++
+diff --git a/src/clients/ksu/Makefile.in b/src/clients/ksu/Makefile.in
+index 8b4edce4d..9d58f29b5 100644
+--- a/src/clients/ksu/Makefile.in
++++ b/src/clients/ksu/Makefile.in
+@@ -3,12 +3,14 @@ BUILDTOP=$(REL)..$(S)..
+ DEFINES = -DGET_TGT_VIA_PASSWD -DPRINC_LOOK_AHEAD -DCMD_PATH='"/usr/local/sbin /usr/local/bin /sbin /bin /usr/sbin /usr/bin"'
+ 
+ KSU_LIBS=@KSU_LIBS@
++PAM_LIBS=@PAM_LIBS@
+ 
+ SRCS = \
+ 	$(srcdir)/krb_auth_su.c \
+ 	$(srcdir)/ccache.c \
+ 	$(srcdir)/authorization.c \
+ 	$(srcdir)/main.c \
++	$(srcdir)/pam.c \
+ 	$(srcdir)/heuristic.c \
+ 	$(srcdir)/xmalloc.c \
+ 	$(srcdir)/setenv.c
+@@ -17,13 +19,17 @@ OBJS = \
+ 	ccache.o \
+ 	authorization.o \
+ 	main.o \
++	pam.o \
+ 	heuristic.o \
+ 	xmalloc.o @SETENVOBJ@
+ 
+ all: ksu
+ 
+ ksu: $(OBJS) $(KRB5_BASE_DEPLIBS)
+-	$(CC_LINK) -o $@ $(OBJS) $(KRB5_BASE_LIBS) $(KSU_LIBS)
++	$(CC_LINK) -o $@ $(OBJS) $(KRB5_BASE_LIBS) $(KSU_LIBS) $(PAM_LIBS)
++
++pam.o: pam.c
++	$(CC) $(ALL_CFLAGS) -c $<
+ 
+ clean:
+ 	$(RM) ksu
+diff --git a/src/clients/ksu/main.c b/src/clients/ksu/main.c
+index af1286172..931f05404 100644
+--- a/src/clients/ksu/main.c
++++ b/src/clients/ksu/main.c
 @@ -26,6 +26,7 @@
-  * KSU was writen by:  Ari Medvinsky, ari@isi.edu
+  * KSU was written by:  Ari Medvinsky, ari@isi.edu
   */
  
 +#include "autoconf.h"
@@ -102,7 +175,7 @@ diff -up krb5-1.18/src/clients/ksu/main.c.pam krb5-1.18/src/clients/ksu/main.c
  /***********/
  
  #define KS_TEMPORARY_CACHE "MEMORY:_ksu"
-@@ -535,6 +541,23 @@ main (argc, argv)
+@@ -536,6 +542,23 @@ main (argc, argv)
                 prog_name,target_user,client_name,
                 source_user,ontty());
  
@@ -126,7 +199,7 @@ diff -up krb5-1.18/src/clients/ksu/main.c.pam krb5-1.18/src/clients/ksu/main.c
          /* Run authorization as target.*/
          if (krb5_seteuid(target_uid)) {
              com_err(prog_name, errno, _("while switching to target for "
-@@ -595,6 +618,24 @@ main (argc, argv)
+@@ -596,6 +619,24 @@ main (argc, argv)
  
              exit(1);
          }
@@ -151,7 +224,7 @@ diff -up krb5-1.18/src/clients/ksu/main.c.pam krb5-1.18/src/clients/ksu/main.c
      }
  
      if( some_rest_copy){
-@@ -652,6 +693,30 @@ main (argc, argv)
+@@ -653,6 +694,30 @@ main (argc, argv)
          exit(1);
      }
  
@@ -182,7 +255,7 @@ diff -up krb5-1.18/src/clients/ksu/main.c.pam krb5-1.18/src/clients/ksu/main.c
      /* set permissions */
      if (setgid(target_pwd->pw_gid) < 0) {
          perror("ksu: setgid");
-@@ -749,7 +814,7 @@ main (argc, argv)
+@@ -750,7 +815,7 @@ main (argc, argv)
          fprintf(stderr, "program to be execed %s\n",params[0]);
      }
  
@@ -191,7 +264,7 @@ diff -up krb5-1.18/src/clients/ksu/main.c.pam krb5-1.18/src/clients/ksu/main.c
          execv(params[0], params);
          com_err(prog_name, errno, _("while trying to execv %s"), params[0]);
          sweep_up(ksu_context, cc_target);
-@@ -779,16 +844,35 @@ main (argc, argv)
+@@ -780,16 +845,35 @@ main (argc, argv)
              if (ret_pid == -1) {
                  com_err(prog_name, errno, _("while calling waitpid"));
              }
@@ -228,46 +301,11 @@ diff -up krb5-1.18/src/clients/ksu/main.c.pam krb5-1.18/src/clients/ksu/main.c
              exit (1);
          }
      }
-diff -up krb5-1.18/src/clients/ksu/Makefile.in.pam krb5-1.18/src/clients/ksu/Makefile.in
---- krb5-1.18/src/clients/ksu/Makefile.in.pam	2020-02-12 18:21:58.000000000 +0100
-+++ krb5-1.18/src/clients/ksu/Makefile.in	2020-04-08 18:15:44.489876410 +0200
-@@ -3,12 +3,14 @@ BUILDTOP=$(REL)..$(S)..
- DEFINES = -DGET_TGT_VIA_PASSWD -DPRINC_LOOK_AHEAD -DCMD_PATH='"/usr/local/sbin /usr/local/bin /sbin /bin /usr/sbin /usr/bin"'
- 
- KSU_LIBS=@KSU_LIBS@
-+PAM_LIBS=@PAM_LIBS@
- 
- SRCS = \
- 	$(srcdir)/krb_auth_su.c \
- 	$(srcdir)/ccache.c \
- 	$(srcdir)/authorization.c \
- 	$(srcdir)/main.c \
-+	$(srcdir)/pam.c \
- 	$(srcdir)/heuristic.c \
- 	$(srcdir)/xmalloc.c \
- 	$(srcdir)/setenv.c
-@@ -17,13 +19,17 @@ OBJS = \
- 	ccache.o \
- 	authorization.o \
- 	main.o \
-+	pam.o \
- 	heuristic.o \
- 	xmalloc.o @SETENVOBJ@
- 
- all: ksu
- 
- ksu: $(OBJS) $(KRB5_BASE_DEPLIBS)
--	$(CC_LINK) -o $@ $(OBJS) $(KRB5_BASE_LIBS) $(KSU_LIBS)
-+	$(CC_LINK) -o $@ $(OBJS) $(KRB5_BASE_LIBS) $(KSU_LIBS) $(PAM_LIBS)
-+
-+pam.o: pam.c
-+	$(CC) $(ALL_CFLAGS) -c $<
- 
- clean:
- 	$(RM) ksu
-diff -up krb5-1.18/src/clients/ksu/pam.c.pam krb5-1.18/src/clients/ksu/pam.c
---- krb5-1.18/src/clients/ksu/pam.c.pam	2020-04-08 18:13:01.565201377 +0200
-+++ krb5-1.18/src/clients/ksu/pam.c	2020-04-08 18:13:01.565201377 +0200
+diff --git a/src/clients/ksu/pam.c b/src/clients/ksu/pam.c
+new file mode 100644
+index 000000000..cbfe48704
+--- /dev/null
++++ b/src/clients/ksu/pam.c
 @@ -0,0 +1,389 @@
 +/*
 + * src/clients/ksu/pam.c
@@ -658,9 +696,11 @@ diff -up krb5-1.18/src/clients/ksu/pam.c.pam krb5-1.18/src/clients/ksu/pam.c
 +	return ret;
 +}
 +#endif
-diff -up krb5-1.18/src/clients/ksu/pam.h.pam krb5-1.18/src/clients/ksu/pam.h
---- krb5-1.18/src/clients/ksu/pam.h.pam	2020-04-08 18:13:01.565201377 +0200
-+++ krb5-1.18/src/clients/ksu/pam.h	2020-04-08 18:13:01.565201377 +0200
+diff --git a/src/clients/ksu/pam.h b/src/clients/ksu/pam.h
+new file mode 100644
+index 000000000..0ab76569c
+--- /dev/null
++++ b/src/clients/ksu/pam.h
 @@ -0,0 +1,57 @@
 +/*
 + * src/clients/ksu/pam.h
@@ -719,10 +759,11 @@ diff -up krb5-1.18/src/clients/ksu/pam.h.pam krb5-1.18/src/clients/ksu/pam.h
 +int appl_pam_cred_init(void);
 +void appl_pam_cleanup(void);
 +#endif
-diff -up krb5-1.18/src/configure.ac.pam krb5-1.18/src/configure.ac
---- krb5-1.18/src/configure.ac.pam	2020-02-12 18:21:58.000000000 +0100
-+++ krb5-1.18/src/configure.ac	2020-04-08 18:13:01.565201377 +0200
-@@ -1390,6 +1390,8 @@ AC_SUBST([VERTO_VERSION])
+diff --git a/src/configure.ac b/src/configure.ac
+index 4eb080784..693f76a81 100644
+--- a/src/configure.ac
++++ b/src/configure.ac
+@@ -1389,6 +1389,8 @@ AC_SUBST([VERTO_VERSION])
  
  AC_PATH_PROG(GROFF, groff)
  

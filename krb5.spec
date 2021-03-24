@@ -91,23 +91,22 @@ Source34:	kadmind.logrotate
 Source35:	kdb_check_weak.c
 Source40:	%{name}.rpmlintrc
 
-Patch5:		krb5-1.10-ksu-access.patch
-Patch7:		krb5-1.16-clang.patch
-Patch16:	krb5-1.12-buildconf.patch
-Patch23:	krb5-1.3.1-dns.patch
-Patch39:	krb5-1.12-api.patch
-Patch60:	krb5-1.12.1-pam.patch
-Patch75:	krb5-pkinit-debug.patch
-Patch86:	krb5-1.9-debuginfo.patch
-Patch107:	krb5-aarch64.patch
-Patch109:	Address-some-optimized-out-memset-calls.patch
-
+Patch0:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-ksu-pam-integration.patch
+Patch1:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-SELinux-integration.patch
+Patch3:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-netlib-and-dns.patch
+Patch4:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-fix-debuginfo-with-y.tab.c.patch
+Patch5:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-Remove-3des-support.patch
+Patch6:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-Use-backported-version-of-OpenSSL-3-KDF-i.patch
+Patch7:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-FIPS-with-PRNG-and-RADIUS-and-MD4.patch
+Patch8:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-APIs-for-marshalling-credentials.patch
+Patch9:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-hostname-canonicalization-helper-to-k5test.py.patch
+Patch10:	https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Support-host-based-GSS-initiator-names.patch
+%if 0
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	diffutils
 BuildRequires:	libtool
 BuildRequires:	keyutils-devel
-BuildRequires:	pam-devel
 BuildRequires:	python-sphinx
 BuildRequires:	lmdb-devel
 %ifarch riscv64
@@ -120,13 +119,6 @@ BuildRequires:	pkgconfig(libverto)
 BuildRequires:	pkgconfig(ncurses)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(ss)
-%if %{with docs}
-BuildRequires:	texlive
-BuildRequires:	texlive-latex-bin
-%endif
-%if %enable_check
-BuildRequires:	dejagnu
-%endif
 %if !%{bootstrap}
 BuildRequires:	openldap-devel
 %endif
@@ -142,6 +134,7 @@ BuildRequires:	devel(libncurses)
 # (tpg) fix upgrade from older releases
 Provides:	krb5 = 1.16.3-2
 Provides:	krb5 = 1.16.3-1
+%endif
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
@@ -418,27 +411,26 @@ This package contains the shared library kdb_ldap for %{name}.
 %endif
 
 %prep
-%setup -q -a 23 -n krb5-%{version}
+%autosetup -p1
 ln -s NOTICE LICENSE
 
-%patch60 -p1 -b .pam
+# Generate an FDS-compatible LDIF file.
+inldif=src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif
+cat > '60kerberos.ldif' << EOF
+# This is a variation on kerberos.ldif which 389 Directory Server will like.
+dn: cn=schema
+EOF
+grep -Eiv '(^$|^dn:|^changetype:|^add:)' $inldif >> 60kerberos.ldif
+touch -r $inldif 60kerberos.ldif
 
-#patch5  -p1 -b .ksu-access
-%patch7 -p1 -b .compile~
-#patch16 -p1 -b .buildconf
-%patch23 -p1 -b .dns
-%patch39 -p1 -b .api
-#patch75 -p1 -b .pkinit-debug
-%patch86 -p1 -b .debuginfo
-#patch107 -p1 -b .aarch64
+# Rebuild the configure scripts.
+cd src
+    autoreconf -fiv
+cd ..
 
-sed -i s,^attributetype:,attributetypes:,g \
-    src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif 
 
 %build
-cd src
-    autoreconf -fi
-cd -
+
 %if %{with crosscompile}
 export krb5_cv_attr_constructor_destructor=yes
 export ac_cv_func_regcomp=yes
@@ -448,16 +440,12 @@ export ac_cv_file__etc_TIMEZONE=no
 sed -i "406d" src/include/k5-platform.h
 %endif
 
-%serverbuild
-# it does not work with -fPIE and someone added that to the serverbuild macro...
-CFLAGS=$(echo $CFLAGS|sed -e 's|-fPIE||g')
-CXXFLAGS=$(echo $CXXFLAGS|sed -e 's|-fPIE||g')
-RPM_OPT_FLAGS=$(echo $RPM_OPT_FLAGS|sed -e 's|-fPIE||g')
+%serverbuild_hardened
 
 cd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
 INCLUDES=-I%{_includedir}/et
-CFLAGS="$(echo $RPM_OPT_FLAGS $DEFINES $INCLUDES -fPIC)"
+CFLAGS="$(echo %{optflags} $DEFINES $INCLUDES -fPIC -fno-strict-aliasing -fstack-protector-all)"
 CPPFLAGS="$(echo $DEFINES $INCLUDES)"
 
 export CONFIGURE_TOP="$(pwd)"
@@ -471,6 +459,7 @@ export ac_cv_printf_positional=yes
 	--target=i686-openmandriva-linux-gnu \
 	--with-system-et \
 	--with-system-ss
+
 sed -i -e 's,/\* #undef CONSTRUCTOR_ATTR_WORKS \*/,#define CONSTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
 sed -i -e 's,/\* #undef DESTRUCTOR_ATTR_WORKS \*/,#define DESTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
 %make_build || :
@@ -489,6 +478,7 @@ cd build
 	CC="%{__cc}" \
 	CFLAGS="$CFLAGS" \
 	CPPFLAGS="$CPPFLAGS" \
+	SS_LIB="-lss" \
 	--enable-shared \
 	--localstatedir=%{_sysconfdir}/kerberos \
 	--enable-dns-for-realm \
@@ -505,23 +495,22 @@ cd build
 %if !%{bootstrap}
 	--with-ldap \
 %endif
-	--with-pam
+	--with-pam \
+	--without-selinux \
+	--with-prng-alg=os \
+	--with-lmdb || (cat config.log; exit 1)
 
-	#--with-netlib=-lresolv
-
-%make
+%make_build
 cd -
 
 %if %{with docs}
 # Build the docs.
-make -C src/build/doc paths.py version.py
+make -C src/doc paths.py version.py
 cp src/doc/paths.py doc/
-mkdir -p build-man build-html build-pdf
+mkdir -p build-man build-html
 sphinx-build -a -b man   -t pathsubs doc build-man
 sphinx-build -a -b html  -t pathsubs doc build-html
 rm -fr build-html/_sources
-sphinx-build -a -b latex -t pathsubs doc build-pdf
-make -C build-pdf
 %endif
 
 
@@ -544,6 +533,9 @@ make -C src/build32 \
 install -d %{buildroot}%{_sysconfdir}/kerberos/krb5kdc
 install -m0644 %{SOURCE10} %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kdc.conf
 install -m0600 %{SOURCE11} %{buildroot}%{_sysconfdir}/kerberos/krb5kdc/kadm5.acl
+
+# Where per-user keytabs live by default.
+install -d -m 755 %{buildroot}%{_localstatedir}/lib/krb5/user
 
 # Default configuration file for everything.
 install -d %{buildroot}%{_sysconfdir}

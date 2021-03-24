@@ -1,11 +1,13 @@
-From 460d36cea95033381a1f50dd387ce21447e7fb85 Mon Sep 17 00:00:00 2001
+From d5ea86ef491feb38f12e6aa53b7579ac02675df6 Mon Sep 17 00:00:00 2001
 From: Robbie Harwood <rharwood@redhat.com>
 Date: Tue, 23 Aug 2016 16:49:25 -0400
-Subject: [PATCH] krb5-1.9-debuginfo.patch
+Subject: [PATCH] [downstream] fix debuginfo with y.tab.c
 
 We want to keep these y.tab.c files around because the debuginfo points to
 them.  It would be more elegant at the end to use symbolic links, but that
 could mess up people working in the tree on other things.
+
+Last-updated: krb5-1.9
 ---
  src/kadmin/cli/Makefile.in                 | 5 +++++
  src/plugins/kdb/ldap/ldap_util/Makefile.in | 2 +-
