@@ -101,7 +101,7 @@ Patch7:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-FIPS-w
 Patch8:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-APIs-for-marshalling-credentials.patch
 Patch9:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-hostname-canonicalization-helper-to-k5test.py.patch
 Patch10:	https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Support-host-based-GSS-initiator-names.patch
-%if 0
+
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	diffutils
@@ -134,7 +134,6 @@ BuildRequires:	devel(libncurses)
 # (tpg) fix upgrade from older releases
 Provides:	krb5 = 1.16.3-2
 Provides:	krb5 = 1.16.3-1
-%endif
 
 %description
 Kerberos V5 is a trusted-third-party network authentication system,
