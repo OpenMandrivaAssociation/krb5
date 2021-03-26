@@ -457,7 +457,8 @@ export ac_cv_printf_positional=yes
 	--host=i686-openmandriva-linux-gnu \
 	--target=i686-openmandriva-linux-gnu \
 	--with-system-et \
-	--with-system-ss
+	--with-system-ss \
+	--without-selinux
 
 sed -i -e 's,/\* #undef CONSTRUCTOR_ATTR_WORKS \*/,#define CONSTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
 sed -i -e 's,/\* #undef DESTRUCTOR_ATTR_WORKS \*/,#define DESTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
