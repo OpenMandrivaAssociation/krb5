@@ -109,6 +109,7 @@ BuildRequires:	libtool
 BuildRequires:	keyutils-devel
 BuildRequires:	python-sphinx
 BuildRequires:	lmdb-devel
+BuildRequires:	pam-devel
 %ifarch riscv64
 BuildRequires:	atomic-devel
 %endif
