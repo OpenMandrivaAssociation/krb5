@@ -1,0 +1,12 @@
+diff -up krb5-1.19.1/src/util/support/selinux.c.omv~ krb5-1.19.1/src/util/support/selinux.c
+--- krb5-1.19.1/src/util/support/selinux.c.omv~	2021-03-29 17:17:23.761632937 +0200
++++ krb5-1.19.1/src/util/support/selinux.c	2021-03-29 17:17:30.306627885 +0200
+@@ -31,7 +31,7 @@
+  * assume that this is Linux-specific, so we make many simplifying assumptions.
+  */
+ 
+-#include "../../include/autoconf.h"
++#include <autoconf.h>
+ 
+ #ifdef USE_SELINUX
+ 

@@ -96,11 +96,11 @@ Patch1:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-SELinu
 Patch3:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-netlib-and-dns.patch
 Patch4:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-fix-debuginfo-with-y.tab.c.patch
 Patch5:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-Remove-3des-support.patch
-Patch6:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-Use-backported-version-of-OpenSSL-3-KDF-i.patch
-Patch7:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-FIPS-with-PRNG-and-RADIUS-and-MD4.patch
 Patch8:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-APIs-for-marshalling-credentials.patch
 Patch9:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-hostname-canonicalization-helper-to-k5test.py.patch
 Patch10:	https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Support-host-based-GSS-initiator-names.patch
+Patch11:	krb5-1.19.1-out-of-tree.patch
+Patch12:	krb5-openssl3.patch
 
 BuildRequires:	bison
 BuildRequires:	flex
@@ -439,7 +439,9 @@ export ac_cv_file__etc_TIMEZONE=no
 sed -i "406d" src/include/k5-platform.h
 %endif
 
-%serverbuild_hardened
+# FIXME %%serverbuild_hardened breaks linking because -pie is added to CFLAGS
+# even when linking a shared library
+#serverbuild_hardened
 
 cd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
