@@ -1,0 +1,24 @@
+From ad123366e5fb2694cf6d9f4f292a001a761b78fa Mon Sep 17 00:00:00 2001
+From: Robbie Harwood <rharwood@redhat.com>
+Date: Tue, 23 Aug 2016 16:46:21 -0400
+Subject: [PATCH] [downstream] netlib and dns
+
+We want to be able to use --with-netlib and --enable-dns at the same time.
+
+Last-updated: krb5-1.3.1
+---
+ src/aclocal.m4 | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/aclocal.m4 b/src/aclocal.m4
+index 5afb96e58..4a4d460e3 100644
+--- a/src/aclocal.m4
++++ b/src/aclocal.m4
+@@ -718,6 +718,7 @@ AC_HELP_STRING([--with-netlib=LIBS], use user defined resolver library),
+ 	LIBS="$LIBS $withval"
+ 	AC_MSG_RESULT("netlib will use \'$withval\'")
+   fi
++  KRB5_AC_ENABLE_DNS
+ ],dnl
+ [AC_LIBRARY_NET]
+ )])dnl
