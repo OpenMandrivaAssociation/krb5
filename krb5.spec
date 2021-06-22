@@ -57,7 +57,6 @@
 # enable checking after compile
 %define enable_check 0
 %{?_with_check: %global %enable_check 1}
-%global optflags %{optflags} -Oz
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
