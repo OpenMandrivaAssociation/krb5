@@ -448,8 +448,8 @@ sed -i "406d" src/include/k5-platform.h
 cd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
 INCLUDES=-I%{_includedir}/et
-CFLAGS="$(echo %{optflags} $DEFINES $INCLUDES -fPIC -fno-strict-aliasing -fstack-protector-all)"
 CPPFLAGS="$(echo $DEFINES $INCLUDES)"
+CFLAGS="$(echo %{optflags} $CPPFLAGS -fPIC -fno-strict-aliasing -fstack-protector-all -Wno-error=unknown-warning-option)"
 
 export CONFIGURE_TOP="$(pwd)"
 %if %{with compat32}
