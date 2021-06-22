@@ -1,6 +1,8 @@
 # wine uses krb5
 %ifarch %{x86_64}
 %bcond_without compat32
+%else
+%bcond_with compat32
 %endif
 
 %bcond_with crosscompile
@@ -450,6 +452,7 @@ CFLAGS="$(echo %{optflags} $DEFINES $INCLUDES -fPIC -fno-strict-aliasing -fstack
 CPPFLAGS="$(echo $DEFINES $INCLUDES)"
 
 export CONFIGURE_TOP="$(pwd)"
+%if %{with compat32}
 mkdir build32
 cd build32
 export krb5_cv_attr_constructor_destructor=yes
@@ -473,6 +476,7 @@ unset krb5_cv_attr_constructor_destructor
 unset ac_cv_func_regcomp
 unset ac_cv_printf_positional
 cd ..
+%endif
 
 mkdir build
 cd build
