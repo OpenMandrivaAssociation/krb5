@@ -415,6 +415,8 @@ This package contains the shared library kdb_ldap for %{name}.
 %autosetup -p1
 ln -s NOTICE LICENSE
 
+find . -name "*.m4" -o -name "configure*" |xargs sed -i -e 's,Werror=unknown-warning-option,Wno-error=unknown-warning-option,g'
+
 # Generate an FDS-compatible LDIF file.
 inldif=src/plugins/kdb/ldap/libkdb_ldap/kerberos.ldif
 cat > '60kerberos.ldif' << EOF
@@ -449,7 +451,7 @@ cd src
 # Work out the CFLAGS and CPPFLAGS which we intend to use.
 INCLUDES=-I%{_includedir}/et
 CPPFLAGS="$(echo $DEFINES $INCLUDES)"
-CFLAGS="$(echo %{optflags} $CPPFLAGS -fPIC -fno-strict-aliasing -fstack-protector-all -Wno-error=unknown-warning-option)"
+CFLAGS="$(echo %{optflags} $CPPFLAGS -fPIC -fno-strict-aliasing -fstack-protector-all)"
 
 export CONFIGURE_TOP="$(pwd)"
 %if %{with compat32}
