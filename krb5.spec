@@ -62,8 +62,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.19.2
-Release:	3
+Version:	1.20
+Release:	1
 License:	MIT
 Url:		http://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -78,10 +78,6 @@ Source10:	kdc.conf
 Source11:	kadm5.acl
 Source19:	krb5kdc.sysconfig
 Source20:	kadmin.sysconfig
-# The same source files we "check", generated with "krb5-tex-pdf.sh create"
-# and tarred up.
-Source23:	krb5-1.10.3-pdf.tar.xz
-Source24:	krb5-tex-pdf.sh
 Source25:	krb5-1.10-manpaths.txt
 Source29:	ksu.pamd
 Source30:	kerberos-iv.portreserve
@@ -96,12 +92,7 @@ Patch0:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-ksu-pa
 Patch1:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-SELinux-integration.patch
 Patch3:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-netlib-and-dns.patch
 Patch4:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-fix-debuginfo-with-y.tab.c.patch
-Patch5:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-Remove-3des-support.patch
-Patch8:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-APIs-for-marshalling-credentials.patch
-Patch9:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Add-hostname-canonicalization-helper-to-k5test.py.patch
-Patch10:	https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/Support-host-based-GSS-initiator-names.patch
 Patch11:	krb5-1.19.1-out-of-tree.patch
-Patch12:	krb5-openssl3.patch
 
 BuildRequires:	bison
 BuildRequires:	flex
@@ -111,7 +102,7 @@ BuildRequires:	keyutils-devel
 BuildRequires:	python-sphinx
 BuildRequires:	lmdb-devel
 BuildRequires:	pam-devel
-%ifarch riscv64
+%ifarch %{riscv64}
 BuildRequires:	atomic-devel
 %endif
 # For _unitdir macro
