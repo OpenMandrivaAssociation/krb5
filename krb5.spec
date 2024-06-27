@@ -102,6 +102,7 @@ BuildRequires:	keyutils-devel
 BuildRequires:	python-sphinx
 BuildRequires:	lmdb-devel
 BuildRequires:	pam-devel
+BuildRequires:	gettext
 %ifarch %{riscv64}
 BuildRequires:	atomic-devel
 %endif
