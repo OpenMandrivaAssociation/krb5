@@ -65,7 +65,7 @@ Name:		krb5
 Version:	1.21.3
 Release:	1
 License:	MIT
-Url:		http://web.mit.edu/kerberos/www/
+Url:		https://web.mit.edu/kerberos/www/
 Group:		System/Libraries
 # from http://web.mit.edu/kerberos/dist/krb5/1.9/krb5-1.9.2-signed.tar
 Source0:	http://web.mit.edu/kerberos/dist/krb5/%(echo %{version} |cut -d. -f1-2)/krb5-%{version}.tar.gz
