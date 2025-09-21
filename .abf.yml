@@ -1,2 +1,3 @@
 sources:
-  krb5-1.21.3.tar.gz: 3e383bbe88cbed56bdad4ba655c40abf0e961cf7
+  krb5-1.22.1.tar.gz: 24ae28fd36e6ecb56238733eb1123e7168989770
+  krb5-1.22.1.tar.gz.asc: 8b8cde628d3c84abd3ec95c465a7325460043ad3
