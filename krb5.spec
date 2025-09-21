@@ -62,7 +62,7 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.21.3
+Version:	1.22.1
 Release:	1
 License:	MIT
 Url:		https://web.mit.edu/kerberos/www/
@@ -87,12 +87,6 @@ Source33:	krb5kdc.logrotate
 Source34:	kadmind.logrotate
 Source35:	kdb_check_weak.c
 Source40:	%{name}.rpmlintrc
-
-Patch0:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-ksu-pam-integration.patch
-Patch1:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-SELinux-integration.patch
-Patch3:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-netlib-and-dns.patch
-Patch4:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-fix-debuginfo-with-y.tab.c.patch
-Patch11:	krb5-1.19.1-out-of-tree.patch
 
 BuildRequires:	bison
 BuildRequires:	flex
@@ -661,8 +655,6 @@ fi
 %dir %{_libdir}/krb5/plugins/preauth
 %dir %{_libdir}/krb5/plugins/authdata
 %dir %{_libdir}/krb5/plugins/tls
-#{_libdir}/krb5/plugins/*
-#%{_libdir}/krb5/plugins/preauth/encrypted_challenge.so
 %{_libdir}/krb5/plugins/preauth/otp.so
 %{_libdir}/krb5/plugins/preauth/test.so
 %{_libdir}/krb5/plugins/preauth/spake.so
@@ -675,7 +667,6 @@ fi
 %doc build-html/*
 %doc build-pdf/user.pdf build-pdf/basic.pdf
 %endif
-%attr(0755,root,root) %doc src/config-files/convert-config-files
 %{_mandir}/man7/kerberos.7*
 %{_mandir}/man5/krb5.conf.5*
 %{_bindir}/kdestroy
