@@ -94,6 +94,11 @@ Patch3:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-netlib
 Patch4:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-fix-debuginfo-with-y.tab.c.patch
 Patch11:	krb5-1.19.1-out-of-tree.patch
 
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	diffutils
