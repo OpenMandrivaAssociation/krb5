@@ -264,7 +264,7 @@ index af1286172..931f05404 100644
          execv(params[0], params);
          com_err(prog_name, errno, _("while trying to execv %s"), params[0]);
          sweep_up(ksu_context, cc_target);
-@@ -780,16 +845,35 @@ main (argc, argv)
+@@ -767,16 +832,35 @@ main(int argc, char ** argv)
              if (ret_pid == -1) {
                  com_err(prog_name, errno, _("while calling waitpid"));
              }
@@ -272,7 +272,7 @@ index af1286172..931f05404 100644
 +            if( !keep_target_cache ) {
 +                sweep_up(ksu_context, cc_target);
 +            }
-             exit (statusp);
+             exit (WIFEXITED(statusp) ? WEXITSTATUS(statusp) : 1);
          case -1:
              com_err(prog_name, errno, _("while trying to fork."));
              sweep_up(ksu_context, cc_target);

@@ -62,8 +62,8 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.21.3
-Release:	2
+Version:	1.22.2
+Release:	1
 License:	MIT
 Url:		https://web.mit.edu/kerberos/www/
 Group:		System/Libraries
@@ -424,8 +424,11 @@ grep -Eiv '(^$|^dn:|^changetype:|^add:)' $inldif >> 60kerberos.ldif
 touch -r $inldif 60kerberos.ldif
 
 # Rebuild the configure scripts.
+# krb5 uses K5_AC_INIT (defined in aclocal.m4) rather than bare AC_INIT;
+# modern autoreconf refuses that before processing m4, so run the tools directly.
 cd src
-    autoreconf -fiv
+	autoconf
+	autoheader
 cd ..
 
 

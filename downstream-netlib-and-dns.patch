@@ -11,10 +11,10 @@ Last-updated: krb5-1.3.1
  1 file changed, 1 insertion(+)
 
 diff --git a/src/aclocal.m4 b/src/aclocal.m4
-index 5afb96e58..4a4d460e3 100644
+index 7397bdc..577e1d8 100644
 --- a/src/aclocal.m4
 +++ b/src/aclocal.m4
-@@ -718,6 +718,7 @@ AC_HELP_STRING([--with-netlib=LIBS], use user defined resolver library),
+@@ -704,6 +704,7 @@ AC_ARG_WITH([netlib],
  	LIBS="$LIBS $withval"
  	AC_MSG_RESULT("netlib will use \'$withval\'")
    fi

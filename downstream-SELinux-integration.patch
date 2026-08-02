@@ -134,41 +134,41 @@ diff --git a/src/build-tools/krb5-config.in b/src/build-tools/krb5-config.in
 index dead0dddc..fef3e054f 100755
 --- a/src/build-tools/krb5-config.in
 +++ b/src/build-tools/krb5-config.in
-@@ -41,6 +41,7 @@ DL_LIB='@DL_LIB@'
+@@ -40,6 +40,7 @@ DL_LIB='@DL_LIB@'
  DEFCCNAME='@DEFCCNAME@'
  DEFKTNAME='@DEFKTNAME@'
  DEFCKTNAME='@DEFCKTNAME@'
 +SELINUX_LIBS='@SELINUX_LIBS@'
  
  LIBS='@LIBS@'
- GEN_LIB=@GEN_LIB@
-@@ -254,7 +255,7 @@ if test -n "$do_libs"; then
+ 
+@@ -252,7 +253,7 @@ if test -n "$do_libs"; then
      fi
  
      # If we ever support a flag to generate output suitable for static
--    # linking, we would output "-lkrb5support $GEN_LIB $LIBS $DL_LIB"
-+    # linking, we would output "-lkrb5support $GEN_LIB $LIBS $SELINUX_LIBS $DL_LIB"
-     # here.
+-    # linking, we would output "-lkrb5support $LIBS $DL_LIB" here.
++    # linking, we would output "-lkrb5support $LIBS $SELINUX_LIBS $DL_LIB" here.
  
      echo $lib_flags
+ fi
 diff --git a/src/config/pre.in b/src/config/pre.in
 index 3752174c7..0d2068575 100644
 --- a/src/config/pre.in
 +++ b/src/config/pre.in
-@@ -177,6 +177,7 @@ LD = $(PURE) @LD@
- KRB_INCLUDES = -I$(BUILDTOP)/include -I$(top_srcdir)/include
+@@ -178,6 +178,7 @@ KRB_INCLUDES = -I$(BUILDTOP)/include -I$(top_srcdir)/include
  LDFLAGS = @LDFLAGS@
  LIBS = @LIBS@
+ FUZZ_LDFLAGS = @FUZZ_LDFLAGS@
 +SELINUX_LIBS=@SELINUX_LIBS@
  
  INSTALL=@INSTALL@
  INSTALL_STRIP=
-@@ -403,7 +404,7 @@ SUPPORT_LIB			= -l$(SUPPORT_LIBNAME)
+@@ -377,7 +378,7 @@ SUPPORT_LIB			= -l$(SUPPORT_LIBNAME)
  # HESIOD_LIBS is -lhesiod...
  HESIOD_LIBS	= @HESIOD_LIBS@
  
--KRB5_BASE_LIBS	= $(KRB5_LIB) $(K5CRYPTO_LIB) $(COM_ERR_LIB) $(SUPPORT_LIB) $(GEN_LIB) $(LIBS) $(DL_LIB)
-+KRB5_BASE_LIBS	= $(KRB5_LIB) $(K5CRYPTO_LIB) $(COM_ERR_LIB) $(SUPPORT_LIB) $(GEN_LIB) $(LIBS) $(SELINUX_LIBS) $(DL_LIB)
+-KRB5_BASE_LIBS	= $(KRB5_LIB) $(K5CRYPTO_LIB) $(COM_ERR_LIB) $(SUPPORT_LIB) $(LIBS) $(DL_LIB)
++KRB5_BASE_LIBS	= $(KRB5_LIB) $(K5CRYPTO_LIB) $(COM_ERR_LIB) $(SUPPORT_LIB) $(LIBS) $(SELINUX_LIBS) $(DL_LIB)
  KDB5_LIBS	= $(KDB5_LIB) $(GSSRPC_LIBS)
  GSS_LIBS	= $(GSS_KRB5_LIB)
  # needs fixing if ever used on macOS!
@@ -291,15 +291,15 @@ diff --git a/src/kdc/main.c b/src/kdc/main.c
 index 3be6dcb07..24d441e16 100644
 --- a/src/kdc/main.c
 +++ b/src/kdc/main.c
-@@ -872,7 +872,7 @@ write_pid_file(const char *path)
-     FILE *file;
+@@ -837,7 +837,7 @@ write_pid_file(const char *path)
      unsigned long pid;
+     int st1, st2;
  
 -    file = fopen(path, "w");
 +    file = WRITABLEFOPEN(path, "w");
      if (file == NULL)
          return errno;
-     pid = (unsigned long) getpid();
+     pid = (unsigned long)getpid();
 diff --git a/src/kprop/kpropd.c b/src/kprop/kpropd.c
 index 498ca599a..c6b8efc28 100644
 --- a/src/kprop/kpropd.c

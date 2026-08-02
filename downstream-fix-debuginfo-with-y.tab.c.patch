@@ -14,7 +14,7 @@ Last-updated: krb5-1.9
  2 files changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/src/kadmin/cli/Makefile.in b/src/kadmin/cli/Makefile.in
-index adfea6e2b..d1327e400 100644
+index adfea6e..d1327e4 100644
 --- a/src/kadmin/cli/Makefile.in
 +++ b/src/kadmin/cli/Makefile.in
 @@ -37,3 +37,8 @@ clean-unix::
@@ -27,7 +27,7 @@ index adfea6e2b..d1327e400 100644
 +	$(YACC.y) $< 
 +	$(CP) y.tab.c $@
 diff --git a/src/plugins/kdb/ldap/ldap_util/Makefile.in b/src/plugins/kdb/ldap/ldap_util/Makefile.in
-index 8669c2436..a22f23c02 100644
+index 8669c24..a22f23c 100644
 --- a/src/plugins/kdb/ldap/ldap_util/Makefile.in
 +++ b/src/plugins/kdb/ldap/ldap_util/Makefile.in
 @@ -20,7 +20,7 @@ $(PROG): $(OBJS) $(KADMSRV_DEPLIBS) $(KRB5_BASE_DEPLIB) $(GETDATE)
