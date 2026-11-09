@@ -93,6 +93,7 @@ Patch1:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-SELinu
 Patch3:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-netlib-and-dns.patch
 Patch4:		https://src.fedoraproject.org/rpms/krb5/raw/rawhide/f/downstream-fix-debuginfo-with-y.tab.c.patch
 Patch11:	krb5-1.19.1-out-of-tree.patch
+Patch12:	krb5-1.22.3-openssl4-const.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -126,6 +127,8 @@ BuildRequires:	devel(libssl)
 BuildRequires:	devel(libcom_err)
 BuildRequires:	devel(libss)
 BuildRequires:	devel(libncurses)
+# clang -m32 links i686 compiler-rt objects shipped in the cross clang package
+BuildRequires:	cross-i686-openmandriva-linux-gnu-clang
 %endif
 # (tpg) fix upgrade from older releases
 Provides:	krb5 = 1.16.3-2
@@ -462,7 +465,7 @@ export ac_cv_printf_positional=yes
 	--target=i686-openmandriva-linux-gnu \
 	--with-system-et \
 	--with-system-ss \
-	--without-selinux
+	--without-selinux || (cat config.log; exit 1)
 
 sed -i -e 's,/\* #undef CONSTRUCTOR_ATTR_WORKS \*/,#define CONSTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h
 sed -i -e 's,/\* #undef DESTRUCTOR_ATTR_WORKS \*/,#define DESTRUCTOR_ATTR_WORKS 1,g' include/autoconf.h

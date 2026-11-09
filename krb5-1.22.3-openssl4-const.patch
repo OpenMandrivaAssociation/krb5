@@ -1,0 +1,20 @@
+--- krb5-1.22.3/src/plugins/tls/k5tls/openssl.c.omv~	2026-11-07 00:01:49.000000000 +0100
++++ krb5-1.22.3/src/plugins/tls/k5tls/openssl.c	2026-11-09 20:04:26.472003557 +0100
+@@ -162,7 +162,7 @@ static GENERAL_NAMES *
+ get_cert_sans(const X509 *x)
+ {
+     int ext;
+-    X509_EXTENSION *san_ext;
++    const X509_EXTENSION *san_ext;
+ 
+     ext = X509_get_ext_by_NID(x, NID_subject_alt_name, -1);
+     if (ext < 0)
+@@ -178,7 +178,7 @@ get_cert_sans(const X509 *x)
+ static int
+ get_cert_cn(const X509 *x, char *buf, size_t bufsize)
+ {
+-    X509_NAME *name;
++    const X509_NAME *name;
+ 
+     name = X509_get_subject_name(x);
+     if (name == NULL)
