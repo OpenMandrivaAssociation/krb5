@@ -62,7 +62,7 @@
 
 Summary:	The Kerberos network authentication system
 Name:		krb5
-Version:	1.22.2
+Version:	1.22.3
 Release:	1
 License:	MIT
 Url:		https://web.mit.edu/kerberos/www/
@@ -96,13 +96,10 @@ Patch11:	krb5-1.19.1-out-of-tree.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	libtool-base
-BuildRequires:	slibtool
 BuildRequires:	make
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	diffutils
-BuildRequires:	libtool
 BuildRequires:	keyutils-devel
 BuildRequires:	python-sphinx
 BuildRequires:	lmdb-devel
